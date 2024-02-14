@@ -1,7 +1,18 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
 .navbar {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
+  width: 50%;
+  margin: 0 auto;
+  flex-wrap: nowrap; /* Ezt a sortörést kikapcsolja */
+  position: relative;
+  top: 30px; /* vagy bármilyen más érték, amennyire szeretnéd eltolni */
 }
 
 .navbar ul {
@@ -12,6 +23,30 @@
   align-items: center;
 }
 
-.navbar ul li {
-  margin-right: 10px; /* Válaszd meg a megfelelő margót */
+.navbar .logo {
+  width: 80px;
+  height: auto;
+}
+
+.navbar-items {
+  display: flex;
+  align-items: center;
+}
+
+.navbar-items li {
+  margin-right: 20px;
+}
+
+.navbar-right {
+  position: absolute;
+  right: 0;
+}
+@media screen and (max-width: 768px) {
+  .navbar {
+    width: 80%; /* Változtasd meg az értéket a kívánt méret alapján */
+  }
+  
+  .navbar-items li {
+    margin-right: 10px; /* Változtasd meg az értéket a kívánt méret alapján */
+  }
 }
