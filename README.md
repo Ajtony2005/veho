@@ -15,3 +15,6 @@
 # React lenne a front-end, mert a kódok utána felhasználhatóak alkalmazásnak is
 # Node js fogja szolgáltatni a Back-endet
 # Lesz még egy adatbázis 
+
+# Hasznos weboldalak:
+# - mui.com

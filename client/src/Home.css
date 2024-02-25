@@ -6,33 +6,79 @@
     background-image: url('/public/wallpaper.jpg'); 
     background-size: cover; 
     background-position: center; 
-  }
+}
 
-  .top-row {
+.top-row {
     display: flex;
     justify-content: space-between;
     padding: 10px;
     box-sizing: border-box;
-  }
-  
-  .overlay {
-    position: absolute; 
-    top: 50%; 
-    left: 50%; 
-    transform: translate(-50%, -50%); 
+}
+
+.overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(to bottom right, orange, lightblue); 
-    max-width: 80%; 
-    padding: 20px;
+    background: linear-gradient(to bottom right, orange, lightblue);
+    max-width: 15%;
+    padding: 20px; /* Üres hely hozzáadása szöveg és gombok között */
     box-sizing: border-box;
     text-align: center;
-    border: 2px solid black; 
-    border-radius: 10px;
-  }
- 
-  
-  
+    border: 10px solid none;
+    border-radius: 5px;
+    opacity: 1;
+}
 
+
+.spacer {
+    margin-bottom: 30px; /* Példa: 10px-es szünet */
+}
+
+.red-button,
+.green-button {
+    position: absolute; /* Abszolút pozíció az overlay-hoz képest */
+    bottom: 10px; /* 10 pixel távolság az overlay aljától */
+    width: 70px; /* 40 pixel szélesség */
+    height: 70px; /* 40 pixel magasság */
+    border-radius: 50%; /* Kör alakú gomb */
+    background-color: transparent; /* Átlátszó háttér */
+    border: 5px solid transparent; /* Átlátszó keret */
+    cursor: pointer; /* Mutató kurzor, hogy jelezze, hogy kattintható */
+}
+
+.red-button {
+    left: 20%; /* Bal szélre igazítás */
+    border-color: red; /* Piros keret */
+}
+
+.green-button {
+    right: 20%; /* Jobb szélre igazítás */
+    border-color: green; /* Zöld keret */
+}
+
+.red {
+    border-radius: 20px;
+    border: 5px solid red;
+}
+
+.green {
+    border-radius: 20px;
+    border: 5px solid green;
+}
+
+@media only screen and (max-width: 768px) {
+    .overlay {
+        max-width: 70%; /* Példa: kisebb overlay a kisebb képernyőkhöz */
+    }
+    
+    .red-button,
+    .green-button {
+        width: 50px; /* Kisebb gombok kisebb képernyőkhöz */
+        height: 50px; /* Kisebb gombok kisebb képernyőkhöz */
+    }
+}

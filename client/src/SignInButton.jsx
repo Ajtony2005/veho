@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import LoginIcon from '@mui/icons-material/Login';
 
 const SignInButton = () => {
   const [clicked, setClicked] = useState(false);
@@ -10,7 +11,9 @@ const SignInButton = () => {
   };
 
   return (
-    <button className="btn btn-outline-warning btn-sm btn-block" onClick={handleClick}>Bejelentkezés</button>
+    <button className="btn btn-outline-warning btn-sm btn-block" onClick={handleClick}>
+      <LoginIcon /> Bejelentkezés
+    </button>
   );
 };
 
