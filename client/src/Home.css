@@ -24,14 +24,15 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(to bottom right, orange, lightblue);
+    background: rgba(255, 255, 255, 0.3);
     max-width: 15%;
     padding: 20px; /* Üres hely hozzáadása szöveg és gombok között */
     box-sizing: border-box;
     text-align: center;
     border: 10px solid none;
-    border-radius: 5px;
+    border-radius: 20px;
     opacity: 1;
+    height: 46%;
 }
 
 
@@ -82,3 +83,14 @@
         height: 50px; /* Kisebb gombok kisebb képernyőkhöz */
     }
 }
+
+.readmore-button {
+    position: absolute; 
+    bottom: 15%; 
+    background-color: transparent; /* Átlátszó háttér */
+    border: 5px solid transparent; /* Átlátszó keret */
+    cursor: pointer; /* Mutató kurzor, hogy jelezze, hogy kattintható */
+}
+
+
+
