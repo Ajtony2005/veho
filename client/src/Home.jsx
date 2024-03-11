@@ -102,10 +102,11 @@ const Home = () => {
 }
 
 const HalfCircle = () => {
-  // Logic for the half circle component
+  
   return (
     <div className="half-circle">
-      {/* SVG or other elements for the half circle */}
+      <Navbar />
+      
     </div>
   );
 }
