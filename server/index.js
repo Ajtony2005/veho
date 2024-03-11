@@ -8,13 +8,12 @@ const app = express();
 
 app.get("/api", (req, res) => {
     res.json({ message: "Hello from server!" });
-  });
-  
-  
+});
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
+
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
@@ -34,5 +33,5 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const firebaseApp = initializeApp(firebaseConfig);
+const analytics = getAnalytics(firebaseApp);

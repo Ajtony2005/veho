@@ -55,16 +55,17 @@ const Home = () => {
             {/* Egyéb tartalom */}
           </>
         )}
-        
+      </div>
+      <HalfCircle />
     </div>
   );
 }
 
 const HalfCircle = () => {
-  // Logic for the half circle component
+  // Implementálj logikát a félkör komponenshez
   return (
     <div className="half-circle">
-      {/* SVG or other elements for the half circle */}
+      {/* SVG vagy más elemek a félkörhöz */}
     </div>
   );
 }
