@@ -3,6 +3,7 @@
     width: 31%;
     height: 800px; /* Módosítva a konténer magasságára */
 }
+
 .circle {
     position: absolute;
     top: 0;
@@ -21,7 +22,7 @@
     width: 100%;
     height: 800px;
     object-fit: cover;
-    border-radius: 0 100% 100%  0;
+    border-radius: 0 100% 100% 0;
 }
 
 .circle-image-container::before,
@@ -41,3 +42,13 @@
 .circle-image-container::after {
     bottom: 0;
 }
+
+.box {
+    position: absolute;
+    top: 30%;
+    left: 180%; 
+    width: 80%; /* Adjust the width based on your needs */
+    background-color: #f0f0f0;
+    
+}
+    
