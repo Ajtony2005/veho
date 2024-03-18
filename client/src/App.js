@@ -3,13 +3,14 @@
 import React from 'react';
 //import Home from './Home';
 import Information from './Information';
+import Home from './Home';
 
 const App = () => {
   return (
     <div>
       {/* <Home /> */}
       <div>
-      <h1>Circle Image Example</h1>
+      <Home/>
       <Information imageUrl="wallpaper.jpg" />
     </div>
     </div>

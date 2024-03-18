@@ -1,7 +1,15 @@
+/* A háttér színe #2f2f2f legyen */
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+.background {
+    background-color: #2f2f2f;
+    font-family: 'Roboto', sans-serif;
+}
+
+
 .circle-image-container {
     position: relative;
     width: 31%;
-    height: 800px; /* Módosítva a konténer magasságára */
+    height: 800px; /* Módosítva a konéner magasságára */
 }
 
 .circle {
@@ -25,30 +33,36 @@
     border-radius: 0 100% 100% 0;
 }
 
-.circle-image-container::before,
-.circle-image-container::after {
-    content: "";
+
+
+.text-container {
     position: absolute;
-    width: 500%;
-    height: 7px;
-    background-color: orange;
-    z-index: 1; /* hogy a vonal a többi tartalom felett legyen */
+    top: 45%;
+    left: 190%; /* Változtasd meg az igényeidnek megfelelően */
+    transform: translate(-50%, -50%);
+    background-color: #ffb366;
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 40px;
+    width: 100%;
+    z-index: 1; /* hogy a szöveg a többi tartalom felett legyen */
 }
 
-.circle-image-container::before {
-    top: 0;
+.text-container h1 {
+    font-size: 2em; /* például nagyobb betűméret */
+    color: #333; /* például más szín */
+    font-weight: bold; /* például vastagabb betű */
 }
-
-.circle-image-container::after {
-    bottom: 0;
-}
-
-.box {
+.left-icon {
     position: absolute;
-    top: 30%;
-    left: 180%; 
-    width: 80%; /* Adjust the width based on your needs */
-    background-color: #f0f0f0;
-    
+    top: 90%;
+    left: 10px; /* Változtasd meg az igényeidnek megfelelően */
+    transform: translateY(-50%);
 }
-    
+
+.right-icon {
+    position: absolute;
+    top: 90%;
+    right: 10px; /* Változtasd meg az igényeidnek megfelelően */
+    transform: translateY(-50%);
+}
