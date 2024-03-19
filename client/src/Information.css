@@ -8,7 +8,7 @@
 
 .circle-image-container {
     position: relative;
-    width: 31%;
+    width: 40%;
     height: 800px; /* Módosítva a konéner magasságára */
 }
 
@@ -38,14 +38,13 @@
 .text-container {
     position: absolute;
     top: 45%;
-    left: 190%; /* Változtasd meg az igényeidnek megfelelően */
+    left: 170%; 
     transform: translate(-50%, -50%);
     background-color: #ffb366;
     border: 2px solid black;
     border-radius: 10px;
     padding: 40px;
     width: 100%;
-    z-index: 1; /* hogy a szöveg a többi tartalom felett legyen */
 }
 
 .text-container h1 {
