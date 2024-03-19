@@ -1,13 +1,11 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import './Home.css';
 import Navbar from './Navbar';
 import Readmore from './Readmore';
 
-const Home = () => {
+const Home = ({ scrollTargetRef }) => {
   const [redButtonClicked, setRedButtonClicked] = useState(false);
   const [greenButtonClicked, setGreenButtonClicked] = useState(false);
-  
-  const scrollTargetRef = useRef(null);
 
   const handleRedButtonClick = () => {
     setRedButtonClicked(true);
@@ -18,7 +16,9 @@ const Home = () => {
   };
 
   const handleReadMoreClick = () => {
-    scrollTargetRef.current.scrollIntoView({ behavior: "smooth" });
+    if (scrollTargetRef.current) {
+      scrollTargetRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   return (
@@ -26,7 +26,6 @@ const Home = () => {
       <Navbar />
       <div className="overlay">
         {redButtonClicked ? (
-          // Piros gomb esetén más szöveg jelenik meg
           <>
             <h1>Nem baj, itt nyerhetsz ihletet!</h1>
             <div className="spacer"></div>
@@ -35,7 +34,6 @@ const Home = () => {
             </div>
           </>
         ) : greenButtonClicked ? (
-          // Zöld gomb esetén más szöveg jelenik meg
           <>
             <h1>Töltsd fel és valósítsd meg ezt csapatban!</h1>
             <div className="spacer"></div>
@@ -44,7 +42,6 @@ const Home = () => {
             </div>
           </>
         ) : (
-          // Kezdeti szöveg, ha még egyik gomb sem lett lenyomva
           <>
             <h1>VAN EGY ÖTLETED?</h1>
             <div className="spacer"></div>
@@ -52,20 +49,9 @@ const Home = () => {
             <div className="spacer"></div>
             <button className="green-button" onClick={handleGreenButtonClick}><span className="icon">✔</span></button>
             <div className="spacer"></div>
-            {/* Egyéb tartalom */}
           </>
         )}
       </div>
-      <HalfCircle />
-    </div>
-  );
-}
-
-const HalfCircle = () => {
-  // Implementálj logikát a félkör komponenshez
-  return (
-    <div className="half-circle">
-      {/* SVG vagy más elemek a félkörhöz */}
     </div>
   );
 }
