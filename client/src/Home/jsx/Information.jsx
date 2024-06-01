@@ -1,14 +1,24 @@
-import React, { useState } from 'react';
-import './Information.css'; // Style fájl importálása
+import React, { useState, useEffect } from 'react';
+import '../css/Information.css'; 
 import { Box } from '@mui/material'; 
 import { IconButton } from '@mui/material';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
 
-import content from './content.json'; // Adatok importálása
+import content from '../json/content.json'; 
+import Cookies from 'js-cookie';
 
 const CircleImage = () => {
   const [index, setIndex] = useState(0);
-  const { title, description, imagePath } = content.content[index];
+  const [language, setLanguage] = useState('hu'); // Alapértelmezetten magyar
+
+  useEffect(() => {
+    const storedLanguage = Cookies.get('language');
+    if (storedLanguage) {
+      setLanguage(storedLanguage);
+    }
+  }, []);
+
+  const { title, description, imagePath } = content.content[index][language];
 
   const handleNext = () => {
     setIndex((prevIndex) => (prevIndex + 1) % content.content.length);

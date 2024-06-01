@@ -10,10 +10,20 @@ body {
   align-items: center;
   width: 50%;
   margin: 0 auto;
-  flex-wrap: nowrap; /* Ezt a sortörést kikapcsolja */
+  flex-wrap: nowrap; 
   position: relative;
-  top: 30px; /* vagy bármilyen más érték, amennyire szeretnéd eltolni */
+  top: 30px; 
+  /* backdrop-filter: blur(30px);
+  box-shadow: 0px 0px 30px Rgba(227, 228, 237, 0.37);
+  border: 2px solid rgba(255, 255, 255, 0.18); */
 }
+
+.navbar-items-right button {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+}
+
 
 .navbar ul {
   list-style: none;
@@ -43,10 +53,10 @@ body {
 }
 @media screen and (max-width: 768px) {
   .navbar {
-    width: 80%; /* Változtasd meg az értéket a kívánt méret alapján */
+    width: 80%; 
   }
   
   .navbar-items li {
-    margin-right: 10px; /* Változtasd meg az értéket a kívánt méret alapján */
+    margin-right: 10px; 
   }
 }

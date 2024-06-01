@@ -11,5 +11,9 @@
     "exclude": [
         "node_modules",
         "**/node_modules/*"
+    ],
+    "include": [
+        "**/*",
+        "client/src/Home/jsx/Home.jsx"
     ]
 }

@@ -15,3 +15,4 @@
 # React lenne a front-end, mert a kódok utána felhasználhatóak alkalmazásnak is
 # Node js fogja szolgáltatni a Back-endet
 # Lesz még egy adatbázis 
+# https://suno.com/song/f21f8430-76d4-465c-9122-afe19db9d9bf

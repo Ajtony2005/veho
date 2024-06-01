@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
-import './Home.css';
+import React, { useState, useEffect } from 'react';
+import '../css/First.css';
 import Navbar from './Navbar';
 import Readmore from './Readmore';
+import { animateScroll as scroll } from 'react-scroll';
 
-const Home = ({ scrollTargetRef }) => {
+const First = ({ scrollTargetRef }) => {
   const [redButtonClicked, setRedButtonClicked] = useState(false);
   const [greenButtonClicked, setGreenButtonClicked] = useState(false);
+  const [readMoreClicked, setReadMoreClicked] = useState(false);
 
+  useEffect(() => {
+    if (readMoreClicked) {
+      scroll.scrollToBottom({
+        smooth: true,
+        container: scrollTargetRef.current
+      });
+    }
+  }, [readMoreClicked, scrollTargetRef]);
+  
+  
   const handleRedButtonClick = () => {
     setRedButtonClicked(true);
   };
@@ -16,9 +28,7 @@ const Home = ({ scrollTargetRef }) => {
   };
 
   const handleReadMoreClick = () => {
-    if (scrollTargetRef.current) {
-      scrollTargetRef.current.scrollIntoView({ behavior: "smooth" });
-    }
+    setReadMoreClicked(true);
   };
 
   return (
@@ -56,4 +66,4 @@ const Home = ({ scrollTargetRef }) => {
   );
 }
 
-export default Home;
+export default First;
