@@ -1,32 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import '../css/Information.css'; 
-import { Box } from '@mui/material'; 
-import { IconButton } from '@mui/material';
+import { Box, IconButton } from '@mui/material';
 import { ArrowBack, ArrowForward } from '@mui/icons-material';
-
 import content from '../json/content.json'; 
 import Cookies from 'js-cookie';
 
 const CircleImage = () => {
   const [index, setIndex] = useState(0);
-  const [language, setLanguage] = useState('hu'); // Alapértelmezetten magyar
+  const [language, setLanguage] = useState('hu'); // Default language is Hungarian
 
   useEffect(() => {
     const storedLanguage = Cookies.get('language');
     if (storedLanguage) {
       setLanguage(storedLanguage);
     }
-  }, []);
 
-  const { title, description, imagePath } = content.content[index][language];
+    const interval = setInterval(() => {
+      const currentLanguage = Cookies.get('language');
+      if (currentLanguage && currentLanguage !== language) {
+        setLanguage(currentLanguage);
+        setIndex(0); // Reset index when language changes
+      }
+    }, 1000); // Check every second
+
+    return () => clearInterval(interval);
+  }, [language]);
 
   const handleNext = () => {
-    setIndex((prevIndex) => (prevIndex + 1) % content.content.length);
+    setIndex((prevIndex) => (prevIndex + 1) % content[language].length);
   };
 
   const handlePrevious = () => {
-    setIndex((prevIndex) => (prevIndex - 1 + content.content.length) % content.content.length);
+    setIndex((prevIndex) => (prevIndex - 1 + content[language].length) % content[language].length);
   };
+
+  const { title, description, imagePath } = content[language][index];
 
   return (
     <div className="background">

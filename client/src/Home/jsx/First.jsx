@@ -3,11 +3,30 @@ import '../css/First.css';
 import Navbar from './Navbar';
 import Readmore from './Readmore';
 import { animateScroll as scroll } from 'react-scroll';
+import Cookies from 'js-cookie'; // Import the js-cookie library
+import texts from '../json/First.json';
 
 const First = ({ scrollTargetRef }) => {
   const [redButtonClicked, setRedButtonClicked] = useState(false);
   const [greenButtonClicked, setGreenButtonClicked] = useState(false);
   const [readMoreClicked, setReadMoreClicked] = useState(false);
+  const [language, setLanguage] = useState('hu'); // Default language is Hungarian
+
+  useEffect(() => {
+    const storedLanguage = Cookies.get('language');
+    if (storedLanguage) {
+      setLanguage(storedLanguage);
+    }
+
+    const interval = setInterval(() => {
+      const currentLanguage = Cookies.get('language');
+      if (currentLanguage && currentLanguage !== language) {
+        setLanguage(currentLanguage);
+      }
+    }, 1000); // Check every second
+
+    return () => clearInterval(interval);
+  }, [language]);
 
   useEffect(() => {
     if (readMoreClicked) {
@@ -17,8 +36,7 @@ const First = ({ scrollTargetRef }) => {
       });
     }
   }, [readMoreClicked, scrollTargetRef]);
-  
-  
+
   const handleRedButtonClick = () => {
     setRedButtonClicked(true);
   };
@@ -31,13 +49,20 @@ const First = ({ scrollTargetRef }) => {
     setReadMoreClicked(true);
   };
 
+  
+
+  const getText = (key) => {
+    return texts[language][key];
+  };
+
   return (
     <div className='home'>
       <Navbar />
       <div className="overlay">
+        
         {redButtonClicked ? (
           <>
-            <h1>Nem baj, itt nyerhetsz ihletet!</h1>
+            <h1>{getText('redButtonClicked').title}</h1>
             <div className="spacer"></div>
             <div className='readmore-button'>
               <Readmore onClick={handleReadMoreClick} />
@@ -45,7 +70,7 @@ const First = ({ scrollTargetRef }) => {
           </>
         ) : greenButtonClicked ? (
           <>
-            <h1>Töltsd fel és valósítsd meg ezt csapatban!</h1>
+            <h1>{getText('greenButtonClicked').title}</h1>
             <div className="spacer"></div>
             <div className='readmore-button'>
               <Readmore onClick={handleReadMoreClick} />
@@ -53,11 +78,11 @@ const First = ({ scrollTargetRef }) => {
           </>
         ) : (
           <>
-            <h1>VAN EGY ÖTLETED?</h1>
+            <h1>{getText('initial').title}</h1>
             <div className="spacer"></div>
-            <button className="red-button" onClick={handleRedButtonClick}><span className="icon">✕</span></button>
+            <button className="red-button" onClick={handleRedButtonClick}><span className="icon">{getText('initial').redButton}</span></button>
             <div className="spacer"></div>
-            <button className="green-button" onClick={handleGreenButtonClick}><span className="icon">✔</span></button>
+            <button className="green-button" onClick={handleGreenButtonClick}><span className="icon">{getText('initial').greenButton}</span></button>
             <div className="spacer"></div>
           </>
         )}
