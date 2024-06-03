@@ -1,0 +1,12 @@
+{
+    "hu": {
+        "author" : "Készítette",
+        "year" : "Készült",
+        "phone" : "Telefonszám"
+    },
+    "en": {
+        "author" : "Made by",
+        "year" : "Made in",
+        "phone" : "Phone number"
+    }
+}

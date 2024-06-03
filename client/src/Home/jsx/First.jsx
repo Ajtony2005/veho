@@ -3,14 +3,14 @@ import '../css/First.css';
 import Navbar from './Navbar';
 import Readmore from './Readmore';
 import { animateScroll as scroll } from 'react-scroll';
-import Cookies from 'js-cookie'; // Import the js-cookie library
+import Cookies from 'js-cookie'; 
 import texts from '../json/First.json';
 
 const First = ({ scrollTargetRef }) => {
   const [redButtonClicked, setRedButtonClicked] = useState(false);
   const [greenButtonClicked, setGreenButtonClicked] = useState(false);
   const [readMoreClicked, setReadMoreClicked] = useState(false);
-  const [language, setLanguage] = useState('hu'); // Default language is Hungarian
+  const [language, setLanguage] = useState('hu');
 
   useEffect(() => {
     const storedLanguage = Cookies.get('language');
@@ -23,7 +23,7 @@ const First = ({ scrollTargetRef }) => {
       if (currentLanguage && currentLanguage !== language) {
         setLanguage(currentLanguage);
       }
-    }, 1000); // Check every second
+    }, 1000); 
 
     return () => clearInterval(interval);
   }, [language]);

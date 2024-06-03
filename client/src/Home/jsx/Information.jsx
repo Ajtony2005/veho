@@ -7,7 +7,7 @@ import Cookies from 'js-cookie';
 
 const CircleImage = () => {
   const [index, setIndex] = useState(0);
-  const [language, setLanguage] = useState('hu'); // Default language is Hungarian
+  const [language, setLanguage] = useState('hu'); 
 
   useEffect(() => {
     const storedLanguage = Cookies.get('language');
@@ -19,10 +19,9 @@ const CircleImage = () => {
       const currentLanguage = Cookies.get('language');
       if (currentLanguage && currentLanguage !== language) {
         setLanguage(currentLanguage);
-        setIndex(0); // Reset index when language changes
+        setIndex(0); 
       }
-    }, 1000); // Check every second
-
+    }, 1000); 
     return () => clearInterval(interval);
   }, [language]);
 
