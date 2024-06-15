@@ -4,7 +4,6 @@ import LoginIcon from '@mui/icons-material/Login';
 import text from '../json/signin.json';
 import Cookies from 'js-cookie';
 
-
 const SignInButton = () => {
   const [clicked, setClicked] = useState(false);
   const [language, setLanguage] = useState('hu'); 
@@ -32,6 +31,7 @@ const getText = (key) => {
 
   const handleClick = () => {
     setClicked(!clicked);
+    window.location.href = '/login';
   };
 
   return (
