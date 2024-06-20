@@ -1,0 +1,39 @@
+{
+    
+        "hu":{
+            "login": {
+            "title": "Bejelentkezés",
+            "username": "Felhasználónév",
+            "password": "Jelszó",
+            "submit": "Bejelentkezés",
+            "noAccount": "Még nincs fiókod?",
+            "registerHere": "Regisztrálj itt"
+        },
+        "register": {
+            "title": "Regisztráció",
+            "email": "Email",
+            "confirmPassword": "Jelszó Újra",
+            "submit": "Regisztráció",
+            "hasAccount": "Már van fiókod?",
+            "loginHere": "Bejelentkezés itt"
+        }
+        },
+        "en":{
+            "login": {
+            "title": "Login",
+            "username": "Username",
+            "password": "Password",
+            "submit": "Login",
+            "noAccount": "Don't have an account?",
+            "registerHere": "Register here"
+        },
+        "register": {
+            "title": "Registration",
+            "email": "Email",
+            "confirmPassword": "Confirm Password",
+            "submit": "Registration",
+            "hasAccount": "Already have an account?",
+            "loginHere": "Login here"
+        }
+        }
+}
