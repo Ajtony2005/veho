@@ -29,6 +29,25 @@
     background-color: rgba(0, 0, 0, 0);
 }
 
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-toggle-button {
+    position: absolute;
+    right: 10px; /* Az input mező jobb szélétől való távolság */
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+}
 .login-input {
     width: 100%;
     padding: 10px;
