@@ -9,6 +9,14 @@ import {
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import texts from "../json/login.json";
 import Cookies from "js-cookie";
+import { auth } from "../../firebase";
+import {
+  getAuth,
+  FacebookAuthProvider,
+  GithubAuthProvider,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -16,6 +24,7 @@ const Login = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
+  const [user, setUser] = useState(null);
   const [email, setEmail] = useState("");
   const [language, setLanguage] = useState("hu");
 
@@ -64,15 +73,73 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    // Implement Google login logic here
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+        // The signed-in user info.
+        const user = result.user;
+        setUser(user);
+        // IdP data available using getAdditionalUserInfo(result)
+        // ...
+      })
+      .catch((error) => {
+        // Handle Errors here.
+        console.log(error);
+        // ...
+      });
   };
 
   const handleFacebookLogin = () => {
-    // Implement Facebook login logic here
+    const provider = new FacebookAuthProvider();
+    const auth = getAuth();
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        // The signed-in user info.
+        const user = result.user;
+
+        // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+        const credential = FacebookAuthProvider.credentialFromResult(result);
+        const accessToken = credential.accessToken;
+        setUser(user);
+
+        // IdP data available using getAdditionalUserInfo(result)
+        // ...
+      })
+      .catch((error) => {
+        console.log(error);
+
+        // ...
+      });
   };
 
   const handleGitHubLogin = () => {
-    // Implement GitHub login logic here
+    const provider = new GithubAuthProvider();
+    const auth = getAuth();
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        // This gives you a GitHub Access Token. You can use it to access the GitHub API.
+        const credential = GithubAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+
+        // The signed-in user info.
+        const user = result.user;
+        setUser(user);
+        // IdP data available using getAdditionalUserInfo(result)
+        // ...
+      })
+      .catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.customData.email;
+        // The AuthCredential type that was used.
+        const credential = GithubAuthProvider.credentialFromError(error);
+        // ...
+      });
   };
 
   const handleSubmit = (e) => {
@@ -203,6 +270,7 @@ const Login = () => {
                     : getText("login.registerHere")}
                 </a>
               </p>
+              <p>{user?.displayName}</p>
             </div>
           </form>
         </div>
