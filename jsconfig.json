@@ -9,7 +9,7 @@
     "strictFunctionTypes": true
   },
   "exclude": ["node_modules", "**/node_modules/*"],
-  "include": ["**/*", "client/src/Home/jsx/Home.jsx"],
+  "include": ["**/*", "src/Home/tsx/Home.jsx"],
   "eslintConfig": {
     "extends": "react-app"
   }
