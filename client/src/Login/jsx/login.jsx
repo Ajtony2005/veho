@@ -16,10 +16,12 @@ import {
   GithubAuthProvider,
   GoogleAuthProvider,
   signInWithPopup,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
 } from "firebase/auth";
+import { ContactMailOutlined } from "@mui/icons-material";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -27,6 +29,8 @@ const Login = () => {
   const [user, setUser] = useState(null);
   const [email, setEmail] = useState("");
   const [language, setLanguage] = useState("hu");
+  const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState(""); // Új állapotváltozó a sikeres regisztrációhoz
 
   useEffect(() => {
     const storedLanguage = Cookies.get("language");
@@ -56,10 +60,6 @@ const Login = () => {
     return textValue;
   };
 
-  const handleUsernameChange = (e) => {
-    setUsername(e.target.value);
-  };
-
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
   };
@@ -76,19 +76,12 @@ const Login = () => {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
       .then((result) => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-        // The signed-in user info.
         const user = result.user;
         setUser(user);
-        // IdP data available using getAdditionalUserInfo(result)
-        // ...
       })
       .catch((error) => {
-        // Handle Errors here.
         console.log(error);
-        // ...
+        setError(error.message);
       });
   };
 
@@ -97,21 +90,12 @@ const Login = () => {
     const auth = getAuth();
     signInWithPopup(auth, provider)
       .then((result) => {
-        // The signed-in user info.
         const user = result.user;
-
-        // This gives you a Facebook Access Token. You can use it to access the Facebook API.
-        const credential = FacebookAuthProvider.credentialFromResult(result);
-        const accessToken = credential.accessToken;
         setUser(user);
-
-        // IdP data available using getAdditionalUserInfo(result)
-        // ...
       })
       .catch((error) => {
         console.log(error);
-
-        // ...
+        setError(error.message);
       });
   };
 
@@ -120,38 +104,82 @@ const Login = () => {
     const auth = getAuth();
     signInWithPopup(auth, provider)
       .then((result) => {
-        // This gives you a GitHub Access Token. You can use it to access the GitHub API.
-        const credential = GithubAuthProvider.credentialFromResult(result);
-        const token = credential.accessToken;
-
-        // The signed-in user info.
         const user = result.user;
         setUser(user);
-        // IdP data available using getAdditionalUserInfo(result)
-        // ...
       })
       .catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-        // The AuthCredential type that was used.
-        const credential = GithubAuthProvider.credentialFromError(error);
-        // ...
+        console.log(error);
+        setError(error.message);
       });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const auth = getAuth();
+    setError("");
+    setSuccessMessage(""); // A sikeres üzenetet kiürítjük minden beküldésnél
+
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
     if (isRegistering) {
-      console.log("Email:", email);
-      console.log("Felhasználónév:", username);
-      console.log("Jelszó:", password);
-      console.log("Jelszó Újra:", confirmPassword);
+      if (!passwordRegex.test(password)) {
+        setError(
+          "A jelszónak tartalmaznia kell legalább 8 karaktert, minimum 1 nagybetűt és 1 számot."
+        );
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setError("A jelszavak nem egyeznek meg.");
+        return;
+      }
+
+      createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          setUser(user);
+          setSuccessMessage("Sikeres regisztráció!"); // Beállítjuk a sikeres regisztrációs üzenetet
+        })
+        .catch((error) => {
+          console.log(error);
+          const errorCode = error.code;
+          const errorMessage = error.message;
+
+          if (errorCode === "auth/email-already-in-use") {
+            setError("Ez az email cím már használatban van");
+          } else {
+            setError(errorMessage);
+            console.log(errorMessage);
+            console.log(errorCode);
+          }
+        });
     } else {
-      console.log("Felhasználónév:", username);
-      console.log("Jelszó:", password);
+      signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          setUser(user);
+        })
+        .catch((error) => {
+          console.log(error);
+          const errorCode = error.code;
+          const errorMessage = error.message;
+
+          if (error.code === "auth/invalid-credential") {
+            setError(
+              "A hitelesítési adatok érvénytelenek. Kérjük, ellenőrizze a beírt adatokat."
+            );
+          } else if (errorCode === "auth/user-not-found") {
+            setError(
+              "Még nincs fiókod ezzel az email címmel. Kérjük, regisztrálj!"
+            );
+          } else if (errorCode === "auth/wrong-password") {
+            setError("Helytelen jelszó!");
+          } else {
+            setError(errorMessage);
+            console.log(errorMessage);
+            console.log(errorCode);
+          }
+        });
     }
   };
 
@@ -173,26 +201,19 @@ const Login = () => {
                 ? getText("register.title")
                 : getText("login.title")}
             </h1>
-            {isRegistering && (
-              <div>
-                <input
-                  type="email"
-                  id="email"
-                  placeholder={getText("register.email")}
-                  className="login-input"
-                  value={email}
-                  onChange={handleEmailChange}
-                />
-              </div>
-            )}
+            {error && <div className="error-message">{error}</div>}
+            {successMessage && (
+              <div className="success-message">{successMessage}</div>
+            )}{" "}
+            {/* A sikeres üzenet megjelenítése */}
             <div>
               <input
-                type="text"
-                id="username"
-                placeholder={getText("login.username")}
+                type="email"
+                id="email"
+                placeholder={getText("login.email")}
                 className="login-input"
-                value={username}
-                onChange={handleUsernameChange}
+                value={email}
+                onChange={handleEmailChange}
               />
             </div>
             <div className="password-container">
