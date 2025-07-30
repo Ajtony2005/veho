@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"; // Na
 import Login from "./Login/tsx/login";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Data from "./Data/tsx/Data";
+import "./App.css"; // Alkalmazás stílusok importálása
 
 function App() {
   const [user] = useAtom(userAtom);
