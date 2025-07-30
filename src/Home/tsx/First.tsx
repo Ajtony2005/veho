@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "../css/First.css";
 import Navbar from "./Navbar.tsx";
 import Readmore from "./Readmore.tsx";
 import { animateScroll as scroll } from "react-scroll";
-import Cookies from "js-cookie";
+import Cookies from "universal-cookie";
 import texts from "../json/First.json";
+
+const cookies = new Cookies();
 
 const First = ({ scrollTargetRef }) => {
   const [redButtonClicked, setRedButtonClicked] = useState(false);
@@ -13,13 +15,13 @@ const First = ({ scrollTargetRef }) => {
   const [language, setLanguage] = useState("hu");
 
   useEffect(() => {
-    const storedLanguage = Cookies.get("language");
+    const storedLanguage = cookies.get("language");
     if (storedLanguage) {
       setLanguage(storedLanguage);
     }
 
     const interval = setInterval(() => {
-      const currentLanguage = Cookies.get("language");
+      const currentLanguage = cookies.get("language");
       if (currentLanguage && currentLanguage !== language) {
         setLanguage(currentLanguage);
       }

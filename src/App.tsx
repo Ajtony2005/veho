@@ -1,20 +1,25 @@
-import { useEffect } from "react";
+import { useAtom } from "jotai"; // useAtom hook importálása
+import { userAtom } from "./util/atom"; // az atom importálása
 import Home from "./Home/Home";
-import Cookies from "js-cookie";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"; // Navigate a redirecthez
 import Login from "./Login/tsx/login";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Data from "./Data/tsx/Data";
 
 function App() {
-  useEffect(() => {
-    Cookies.set("language", "hu", { expires: 30 });
-  }, []);
+  const [user] = useAtom(userAtom);
 
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+
+        <Route
+          path="/data"
+          // element={user ? <Data /> : <Navigate to="/login" replace />}
+          element={<Data />}
+        />
       </Routes>
     </BrowserRouter>
   );

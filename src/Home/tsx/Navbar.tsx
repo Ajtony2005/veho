@@ -1,24 +1,36 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import "../css/Navbar.css";
 import SignInButton from "./SignInButton.tsx";
 import { HU, GB } from "country-flag-icons/react/3x2";
-import Cookies from "js-cookie";
+import Cookies from "universal-cookie";
+
+const cookies = new Cookies();
 
 const Navbar = () => {
-  const [language, setLanguage] = useState(
-    () => Cookies.get("language") || "hu"
-  );
+  const [language, setLanguage] = useState(cookies.get("language") || "hu");
 
   useEffect(() => {
-    const storedLanguage = Cookies.get("language");
-    if (storedLanguage && storedLanguage !== language) {
-      setLanguage(storedLanguage);
+    console.log(language);
+    const storedLanguage = cookies.get("language");
+    if (storedLanguage !== language) {
+      cookies.set("language", language, {
+        path: "/",
+        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 napos lejárati idő
+        sameSite: "Lax",
+        secure: false,
+      });
     }
   }, [language]);
 
-  const changeLanguage = (lang) => {
-    setLanguage(lang);
-    Cookies.set("language", lang, { expires: 30 });
+  const changeLanguage = (lang: string) => {
+    console.log(lang);
+    setLanguage(lang); // Nyelv frissítése állapotban
+    cookies.set("language", lang, {
+      path: "/",
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 napos lejárati idő
+      sameSite: "Lax",
+      secure: false,
+    });
   };
 
   const reloadPage = () => {
@@ -29,7 +41,7 @@ const Navbar = () => {
     <nav className="navbar">
       <ul className="navbar-items">
         <img
-          src={`${import.meta.env.VITE_PUBLIC_URL}logo.png`} // Használj VITE_PUBLIC_URL-t
+          src={`${import.meta.env.VITE_PUBLIC_URL}logo.png`}
           alt="VEHO Logo"
           className="logo"
           onClick={reloadPage}
@@ -37,6 +49,7 @@ const Navbar = () => {
         <div className="navbar-right">
           <ul className="navbar-items-right">
             <li>
+              <p>{language}</p>
               <button
                 className="flag-button"
                 onClick={() => changeLanguage("hu")}

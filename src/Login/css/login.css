@@ -1,112 +1,184 @@
- .body-login {
-    margin: 0;
-    font-family: 'Roboto', sans-serif;
-    background-image: url('../img/login.jpg');
-    background-size: cover;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-} 
+.body-login {
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+  background-image: url("../img/login.jpg");
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
 
 .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
 }
 
 .login-box {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    width: 300px;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    background-color: rgba(0, 0, 0, 0);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 300px;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0);
 }
 
 .password-container {
-    position: relative;
-    display: flex;
-    align-items: center;
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .password-toggle-button {
-    position: absolute;
-    right: 10px; /* Az input mező jobb szélétől való távolság */
-    background: none;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    margin: 0;
-    height: 100%;
+  position: absolute;
+  right: 10px; /* Az input mező jobb szélétől való távolság */
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+  height: 100%;
 }
 .login-input {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    opacity: 0.8; 
-    background-color: rgba(255, 255, 255, 0.5); 
-    color: #333;
-    font-size: 16px;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  opacity: 0.8;
+  background-color: rgba(255, 255, 255, 0.5);
+  color: #333;
+  font-size: 16px;
 }
 
 .login-button {
-    width: 100%;
-    padding: 10px;
-    margin: 10px 0;
-    border: 3px solid black;
-    border-radius: 20px;
-    background-color: rgba(255, 255, 255, 0.5);
-    color: black;
-    font-size: 16px;
-    cursor: pointer;
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 3px solid black;
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.5);
+  color: black;
+  font-size: 16px;
+  cursor: pointer;
 }
 .login-buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    padding: 0 3%;
-    box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0 3%;
+  box-sizing: border-box;
 }
 
-.login-button-github, .login-button-google, .login-button-facebook {
-    width: 32%;
-    padding: 0px;
-    margin: 0px;
-    border: 3px solid black;
-    border-radius: 50px; 
-    color: black;
-    font-size: 45px;
-    cursor: pointer;
-    text-align: center;
-     line-height: 1.5; 
+.login-button-github,
+.login-button-google,
+.login-button-facebook {
+  width: 32%;
+  padding: 0px;
+  margin: 0px;
+  border: 3px solid black;
+  border-radius: 50px;
+  color: black;
+  font-size: 45px;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.5;
 }
 
 .login-button-github {
-    background-color: rgba(45, 186, 78, 0.3);
+  background-color: rgba(45, 186, 78, 0.3);
 }
 
 .login-button-google {
-    background-color: rgba(234, 67, 53, 0.3);
+  background-color: rgba(234, 67, 53, 0.3);
 }
 
 .login-button-facebook {
-    background-color: rgba(83, 119, 242, 0.3);
+  background-color: rgba(83, 119, 242, 0.3);
 }
-
 
 .login-button .fa-icon {
-    margin-right: 8px;
+  margin-right: 8px;
 }
 
+.success-message {
+  color: black;
+  font-size: 20px;
+  margin: 10px 0;
+  text-align: center;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  max-width: 300px;
+  width: 100%;
+  text-align: center;
+  height: 400px;
+}
+
+.modal-image {
+  width: 40%;
+  height: 30%;
+  object-fit: cover;
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.modal-content p {
+  margin-bottom: 120px;
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.modal-content button {
+  padding: 10px 20px;
+  background-color: rgb(31, 160, 192);
+  color: black;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  top: 100%;
+  left: 100%;
+  transform: translate(0%, 700%);
+}
+
+.modal-content button:hover {
+  background-color: rgb(27, 197, 83);
+}
+
+.register-link {
+  background-color: rgba(255, 255, 255, 0.4);
+  padding: 5px;
+  border-radius: 20px;
+  text-align: center;
+}

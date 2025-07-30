@@ -6,7 +6,8 @@
       "password": "Jelszó",
       "submit": "Bejelentkezés",
       "noAccount": "Még nincs fiókod?",
-      "registerHere": "Regisztrálj itt"
+      "registerHere": "Regisztrálj itt",
+      "forgotPassword": "Elfelejtetted a jelszavad?"
     },
     "register": {
       "title": "Regisztráció",
@@ -24,7 +25,8 @@
       "password": "Password",
       "submit": "Login",
       "noAccount": "Don't have an account?",
-      "registerHere": "Register here"
+      "registerHere": "Register here",
+      "forgotPassword": "Forgot your password?"
     },
     "register": {
       "title": "Registration",

@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import LoginIcon from "@mui/icons-material/Login";
 import text from "../json/signin.json";
-import Cookies from "js-cookie";
+import Cookies from "universal-cookie";
+
+const cookies = new Cookies();
 
 const SignInButton = () => {
   const [clicked, setClicked] = useState(false);
   const [language, setLanguage] = useState("hu");
+
   useEffect(() => {
-    const storedLanguage = Cookies.get("language");
+    const storedLanguage = cookies.get("language");
     if (storedLanguage) {
       setLanguage(storedLanguage);
     }
 
     const interval = setInterval(() => {
-      const currentLanguage = Cookies.get("language");
+      const currentLanguage = cookies.get("language");
       if (currentLanguage && currentLanguage !== language) {
         setLanguage(currentLanguage);
       }
