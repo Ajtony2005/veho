@@ -1,9 +1,9 @@
 [build.environment]
-NODE_VERSION = "20.10.0"
+  NODE_VERSION = "20.10.0"
 
 [build]
   command = "yarn build"
-  publish = "build"
+  publish = "dist"
 
 [[redirects]]
   from = "/*"
