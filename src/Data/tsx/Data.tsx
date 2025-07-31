@@ -2,7 +2,7 @@ import React from "react";
 import { useAtom } from "jotai"; // useAtom hook importálása
 import { userAtom } from "../../util/atom"; // Az atom importálása
 import { useNavigate } from "react-router-dom";
-import { auth } from "../../firebase";
+import { auth } from "../../lib/firebase";
 import { signOut } from "firebase/auth";
 
 const Data = () => {

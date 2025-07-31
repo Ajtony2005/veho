@@ -9,7 +9,7 @@ import {
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import texts from "../json/login.json";
 import Cookies from "universal-cookie";
-import { auth } from "../../firebase";
+import { auth } from "../../lib/firebase";
 import {
   FacebookAuthProvider,
   GithubAuthProvider,

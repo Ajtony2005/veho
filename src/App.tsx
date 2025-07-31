@@ -1,11 +1,14 @@
-import { useAtom } from "jotai"; // useAtom hook importálása
-import { userAtom } from "./util/atom"; // az atom importálása
-import Home from "./Home/Home";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"; // Navigate a redirecthez
-import Login from "./Login/tsx/login";
-import "bootstrap/dist/css/bootstrap.min.css";
-import Data from "./Data/tsx/Data";
-import "./App.css"; // Alkalmazás stílusok importálása
+import { useAtom } from "jotai";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { userAtom } from "./store/userAtom";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Data from "./pages/Data";
+import Ideas from "./pages/Ideas";
+import ShareIdea from "./pages/ShareIdea";
+import Profile from "./pages/Profile";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import "./styles/App.css";
 
 function App() {
   const [user] = useAtom(userAtom);
@@ -15,11 +18,13 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-
+        <Route path="/ideas" element={<Ideas />} />
+        <Route path="/share-idea" element={<ShareIdea />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route
           path="/data"
-          // element={user ? <Data /> : <Navigate to="/login" replace />}
-          element={<Data />}
+          element={user ? <Data /> : <Navigate to="/login" replace />}
         />
       </Routes>
     </BrowserRouter>
