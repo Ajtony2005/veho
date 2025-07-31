@@ -1,5 +1,8 @@
+[build.environment]
+NODE_VERSION = "20.10.0"
+
 [build]
-  command = "npm run build"
+  command = "yarn build"
   publish = "build"
 
 [[redirects]]
