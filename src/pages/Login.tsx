@@ -1,19 +1,11 @@
 import { useState } from "react";
 import { useAtom } from "jotai";
-import {
-  Circle,
-  Facebook,
-  Github,
-  Eye,
-  EyeOff,
-  Mail,
-  Lock,
-  User,
-} from "lucide-react";
+import { Facebook, Github, Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { languageAtom } from "../store/languageAtom";
+import { FaGoogle } from "react-icons/fa";
 
 // Texts
 const texts = {
@@ -316,7 +308,7 @@ function Login() {
                   className="bg-white/10 border-white/30 text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300 backdrop-blur-sm"
                   onClick={() => handleSocialLogin("Google")}
                 >
-                  <Circle className="w-4 h-4" />
+                  <FaGoogle className="w-4 h-4" />
                 </Button>
                 <Button
                   type="button"
