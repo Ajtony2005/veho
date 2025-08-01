@@ -1,6 +1,5 @@
 import { useAtom } from "jotai";
 import { languageAtom } from "../store/languageAtom";
-import Header from "../components/Header";
 import Footer from "../components/Footer";
 
 // Szövegek
