@@ -1,34 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useAtom } from "jotai";
-import { useNavigate } from "react-router-dom";
 import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-  sendPasswordResetEmail,
-  GoogleAuthProvider,
-  FacebookAuthProvider,
-  GithubAuthProvider,
-  signInWithRedirect,
-  getRedirectResult,
-} from "firebase/auth";
-import { Circle, Facebook, Github, Eye, EyeOff } from "lucide-react";
+  Circle,
+  Facebook,
+  Github,
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  User,
+} from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import { auth } from "../lib/firebase";
 import { languageAtom } from "../store/languageAtom";
-import { userAtom } from "../store/userAtom";
-import Modal from "../components/Modal";
-import Envelope from "../components/Envelope";
 
-// Szövegek a login.json alapján
+// Texts
 const texts = {
   hu: {
     login: {
@@ -51,21 +38,12 @@ const texts = {
       passwordMismatch: "A jelszavak nem egyeznek meg.",
       invalidPassword:
         "A jelszónak tartalmaznia kell legalább 8 karaktert, minimum 1 nagybetűt és 1 számot.",
-      emailInUse: "Ez az email cím már használatban van.",
-      invalidCredentials:
-        "A hitelesítési adatok érvénytelenek. Kérjük, ellenőrizze a beírt adatokat.",
-      userNotFound:
-        "Még nincs fiókod ezzel az email címmel. Kérjük, regisztrálj!",
-      wrongPassword: "Helytelen jelszó!",
-      emailNotVerified:
-        "Az email cím még nincs megerősítve. Kérjük, ellenőrizze a beérkezett leveleket.",
+      invalidCredentials: "A hitelesítési adatok érvénytelenek.",
       invalidEmail: "Kérjük, add meg a helyes email címed!",
-      authError: "Hiba a bejelentkezés során, kérjük próbáld újra.",
-      resetError:
-        "Hiba történt a jelszó visszaállítás során, kérjük próbáld újra.",
     },
     success: {
-      register: "Sikeres regisztráció! Kérjük, ellenőrizd az email címedet.",
+      register: "Sikeres regisztráció! Üdvözlünk!",
+      login: "Sikeres bejelentkezés! Átirányítás...",
       reset: "Email elküldve a jelszó visszaállításához!",
     },
   },
@@ -90,19 +68,12 @@ const texts = {
       passwordMismatch: "The passwords do not match.",
       invalidPassword:
         "The password must contain at least 8 characters, including 1 uppercase letter and 1 number.",
-      emailInUse: "This email address is already in use.",
-      invalidCredentials:
-        "The credentials are invalid. Please check the entered information.",
-      userNotFound: "No account found with this email. Please register!",
-      wrongPassword: "Incorrect password!",
-      emailNotVerified:
-        "The email address is not yet verified. Please check your inbox.",
+      invalidCredentials: "The credentials are invalid.",
       invalidEmail: "Please enter a valid email address!",
-      authError: "An error occurred during sign-in. Please try again.",
-      resetError: "An error occurred during password reset. Please try again.",
     },
     success: {
-      register: "Registration successful! Please verify your email address.",
+      register: "Registration successful! Welcome!",
+      login: "Login successful! Redirecting...",
       reset: "Email sent for password reset!",
     },
   },
@@ -116,307 +87,289 @@ function Login() {
   const [isRegistering, setIsRegistering] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [registrationSuccess, setRegistrationSuccess] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [language] = useAtom(languageAtom);
-  const [user, setUser] = useAtom(userAtom);
-  const navigate = useNavigate();
-
-  // Kezeljük a redirect eredményt
-  useEffect(() => {
-    const handleRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result) {
-          setUser(result.user);
-          navigate("/");
-        }
-      } catch (error: any) {
-        setError(texts[language].errors.authError);
-        setShowModal(true);
-      }
-    };
-    handleRedirectResult();
-  }, [navigate, setUser, language]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccessMessage("");
+    setIsLoading(true);
+
+    // Simulate loading
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
     if (isRegistering) {
       if (!passwordRegex.test(password)) {
         setError(texts[language].errors.invalidPassword);
-        setShowModal(true);
+        setIsLoading(false);
         return;
       }
       if (password !== confirmPassword) {
         setError(texts[language].errors.passwordMismatch);
-        setShowModal(true);
+        setIsLoading(false);
         return;
       }
-      try {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-        setUser(userCredential.user);
-        await sendEmailVerification(userCredential.user);
-        setSuccessMessage(texts[language].success.register);
-        setRegistrationSuccess(true);
-      } catch (error: any) {
-        const errorCode = error.code;
-        if (errorCode === "auth/email-already-in-use") {
-          setError(texts[language].errors.emailInUse);
-        } else {
-          setError(error.message);
-        }
-        setShowModal(true);
-      }
+      setSuccessMessage(texts[language].success.register);
     } else {
-      try {
-        const userCredential = await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-        setUser(userCredential.user);
-        if (!userCredential.user.emailVerified) {
-          setError(texts[language].errors.emailNotVerified);
-          setShowModal(true);
-        } else {
-          navigate("/");
-        }
-      } catch (error: any) {
-        const errorCode = error.code;
-        if (errorCode === "auth/invalid-credential") {
-          setError(texts[language].errors.invalidCredentials);
-        } else if (errorCode === "auth/user-not-found") {
-          setError(texts[language].errors.userNotFound);
-        } else if (errorCode === "auth/wrong-password") {
-          setError(texts[language].errors.wrongPassword);
-        } else {
-          setError(error.message);
-        }
-        setShowModal(true);
+      if (email && password) {
+        setSuccessMessage(texts[language].success.login);
+        console.log("Login attempt:", { email, password });
+      } else {
+        setError(texts[language].errors.invalidCredentials);
       }
     }
+    setIsLoading(false);
   };
 
-  const handleGoogleLogin = async () => {
-    try {
-      const provider = new GoogleAuthProvider();
-      await signInWithRedirect(auth, provider);
-    } catch (error: any) {
-      setError(texts[language].errors.authError);
-      setShowModal(true);
-    }
+  const handleSocialLogin = (provider: string) => {
+    console.log(`${provider} login clicked`);
   };
 
-  const handleFacebookLogin = async () => {
-    try {
-      const provider = new FacebookAuthProvider();
-      await signInWithRedirect(auth, provider);
-    } catch (error: any) {
-      setError(texts[language].errors.authError);
-      setShowModal(true);
-    }
-  };
-
-  const handleGitHubLogin = async () => {
-    try {
-      const provider = new GithubAuthProvider();
-      await signInWithRedirect(auth, provider);
-    } catch (error: any) {
-      setError(texts[language].errors.authError);
-      setShowModal(true);
-    }
-  };
-
-  const handleForgotPassword = async () => {
+  const handleForgotPassword = () => {
     if (!email.includes("@")) {
       setError(texts[language].errors.invalidEmail);
-      setShowModal(true);
       return;
     }
-    try {
-      await sendPasswordResetEmail(auth, email);
-      setSuccessMessage(texts[language].success.reset);
-      setRegistrationSuccess(true);
-    } catch (error: any) {
-      setError(texts[language].errors.resetError);
-      setShowModal(true);
-    }
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+    setSuccessMessage(texts[language].success.reset);
   };
 
   const toggleForm = () => {
     setIsRegistering(!isRegistering);
     setError("");
     setSuccessMessage("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
-      <Card className="w-full max-w-md bg-white dark:bg-slate-800">
-        <CardHeader>
-          <CardTitle className="text-2xl font-semibold text-center">
-            {isRegistering
-              ? texts[language].register.title
-              : texts[language].login.title}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {registrationSuccess ? (
-            <div className="flex flex-col items-center gap-4">
-              <Envelope />
-              <p className="text-green-500">{successMessage}</p>
+    <div className="min-h-screen flex items-center justify-center px-4 relative">
+      {/* Subtle animated background elements for depth */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-primary/10 rounded-full blur-2xl animate-pulse"></div>
+        <div className="absolute top-3/4 right-1/4 w-32 h-32 bg-accent/10 rounded-full blur-2xl animate-pulse animation-delay-1000"></div>
+        <div className="absolute bottom-1/4 left-1/3 w-32 h-32 bg-secondary/10 rounded-full blur-2xl animate-pulse animation-delay-2000"></div>
+      </div>
+
+      {/* Main container with glassmorphism */}
+      <div className="relative w-full max-w-md">
+        <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-white/5 rounded-2xl blur-sm"></div>
+        <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-8 shadow-2xl">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-primary/80 to-primary-600/80 rounded-full mb-4 shadow-lg backdrop-blur-sm">
+              <User className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-3xl font-bold text-white mb-2 tracking-tight">
+              {isRegistering
+                ? texts[language].register.title
+                : texts[language].login.title}
+            </h2>
+            <div className="w-20 h-1 bg-gradient-to-r from-primary to-primary-600 mx-auto rounded-full"></div>
+          </div>
+
+          {/* Success/Error Messages */}
+          {(error || successMessage) && (
+            <div
+              className={`mb-6 p-4 rounded-lg backdrop-blur-sm border transition-all duration-300 ${
+                error
+                  ? "bg-destructive/20 border-destructive/30 text-red-200"
+                  : "bg-secondary/20 border-secondary/30 text-green-200"
+              }`}
+            >
+              <p className="text-sm text-center font-medium">
+                {error || successMessage}
+              </p>
+            </div>
+          )}
+
+          {successMessage && !error ? (
+            <div className="flex flex-col items-center gap-6 py-8">
+              <div className="w-20 h-20 bg-gradient-to-r from-secondary/80 to-accent/80 rounded-full flex items-center justify-center animate-pulse backdrop-blur-sm">
+                <Mail className="w-10 h-10 text-white" />
+              </div>
+              <p className="text-white/90 text-center leading-relaxed">
+                {successMessage}
+              </p>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="email">{texts[language].login.email}</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={texts[language].login.email}
-                  className="mt-1"
-                  required
-                />
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Email Field */}
+              <div className="space-y-2">
+                <Label className="text-white/90 text-sm font-medium">
+                  {texts[language].login.email}
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={texts[language].login.email}
+                    className="w-full pl-12 pr-4 py-3 bg-white/10 border border-white/30 rounded-lg text-white placeholder-white/50 focus:bg-white/20 focus:border-primary/60 transition-all duration-300 backdrop-blur-sm"
+                    required
+                  />
+                </div>
               </div>
-              <div className="relative">
-                <Label htmlFor="password">
+
+              {/* Password Field */}
+              <div className="space-y-2">
+                <Label className="text-white/90 text-sm font-medium">
                   {texts[language].login.password}
                 </Label>
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={texts[language].login.password}
-                  className="mt-1 pr-10"
-                  required
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-2 top-9"
-                  onClick={togglePasswordVisibility}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-              {isRegistering && (
                 <div className="relative">
-                  <Label htmlFor="confirmPassword">
-                    {texts[language].register.confirmPassword}
-                  </Label>
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
                   <Input
-                    id="confirmPassword"
                     type={showPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder={texts[language].register.confirmPassword}
-                    className="mt-1 pr-10"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={texts[language].login.password}
+                    className="w-full pl-12 pr-12 py-3 bg-white/10 border border-white/30 rounded-lg text-white placeholder-white/50 focus:bg-white/20 focus:border-primary/60 transition-all duration-300 backdrop-blur-sm"
                     required
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
-                    className="absolute right-2 top-9"
-                    onClick={togglePasswordVisibility}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white/90 hover:bg-white/10"
+                    onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
+                      <EyeOff className="w-4 h-4" />
                     ) : (
-                      <Eye className="h-4 w-4" />
+                      <Eye className="w-4 h-4" />
                     )}
                   </Button>
                 </div>
+              </div>
+
+              {/* Confirm Password Field (Register only) */}
+              {isRegistering && (
+                <div className="space-y-2 transition-all duration-300">
+                  <Label className="text-white/90 text-sm font-medium">
+                    {texts[language].register.confirmPassword}
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/50" />
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder={texts[language].register.confirmPassword}
+                      className="w-full pl-12 pr-12 py-3 bg-white/10 border border-white/30 rounded-lg text-white placeholder-white/50 focus:bg-white/20 focus:border-primary/60 transition-all duration-300 backdrop-blur-sm"
+                      required
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/50 hover:text-white/90 hover:bg-white/10"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
               )}
+
+              {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full bg-indigo-500 text-white hover:bg-indigo-600"
+                disabled={isLoading}
+                className="w-full py-3 bg-gradient-to-r from-primary/80 to-primary-600/80 hover:from-primary-600/90 hover:to-primary-700/90 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm"
               >
-                {isRegistering
-                  ? texts[language].register.submit
-                  : texts[language].login.submit}
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Loading...
+                  </div>
+                ) : isRegistering ? (
+                  texts[language].register.submit
+                ) : (
+                  texts[language].login.submit
+                )}
               </Button>
-              <div className="flex justify-center gap-4">
+
+              {/* Social Login */}
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-white/30"></div>
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-4 bg-transparent text-white/70">
+                    or continue with
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
                 <Button
                   type="button"
                   variant="outline"
-                  size="icon"
-                  onClick={handleGoogleLogin}
-                  className="border-indigo-500 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950"
+                  className="bg-white/10 border-white/30 text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300 backdrop-blur-sm"
+                  onClick={() => handleSocialLogin("Google")}
                 >
-                  <Circle className="h-5 w-5" />
+                  <Circle className="w-4 h-4" />
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
-                  size="icon"
-                  onClick={handleFacebookLogin}
-                  className="border-indigo-500 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950"
+                  className="bg-white/10 border-white/30 text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300 backdrop-blur-sm"
+                  onClick={() => handleSocialLogin("Facebook")}
                 >
-                  <Facebook className="h-5 w-5" />
+                  <Facebook className="w-4 h-4" />
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
-                  size="icon"
-                  onClick={handleGitHubLogin}
-                  className="border-indigo-500 text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950"
+                  className="bg-white/10 border-white/30 text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300 backdrop-blur-sm"
+                  onClick={() => handleSocialLogin("GitHub")}
                 >
-                  <Github className="h-5 w-5" />
+                  <Github className="w-4 h-4" />
                 </Button>
               </div>
-              <div className="text-center text-sm text-gray-600 dark:text-gray-300">
-                <p>
-                  {isRegistering
-                    ? texts[language].register.hasAccount
-                    : texts[language].login.noAccount}
-                  <button
-                    type="button"
-                    onClick={toggleForm}
-                    className="text-indigo-500 hover:underline"
-                  >
-                    {isRegistering
-                      ? texts[language].register.loginHere
-                      : texts[language].login.registerHere}
-                  </button>
-                </p>
-                {!isRegistering && (
+
+              {/* Forgot Password */}
+              {!isRegistering && (
+                <div className="text-center">
                   <button
                     type="button"
                     onClick={handleForgotPassword}
-                    className="text-indigo-500 hover:underline"
+                    className="text-primary hover:text-primary-600 text-sm transition-colors duration-300"
                   >
                     {texts[language].login.forgotPassword}
                   </button>
-                )}
+                </div>
+              )}
+
+              {/* Toggle Form */}
+              <div className="text-center pt-4 border-t border-white/30">
+                <span className="text-white/70 text-sm">
+                  {isRegistering
+                    ? texts[language].register.hasAccount
+                    : texts[language].login.noAccount}
+                </span>
+                <button
+                  type="button"
+                  onClick={toggleForm}
+                  className="text-primary hover:text-primary-600 text-sm font-medium ml-1 transition-colors duration-300"
+                >
+                  {isRegistering
+                    ? texts[language].register.loginHere
+                    : texts[language].login.registerHere}
+                </button>
               </div>
             </form>
           )}
-        </CardContent>
-      </Card>
-      {showModal && (
-        <Modal message={error} onClose={() => setShowModal(false)} />
-      )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -26,14 +26,14 @@ function AuthButton() {
     <Button
       variant="outline"
       onClick={handleSignOut}
-      className="flex items-center gap-2 text-indigo-500 border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950"
+      className="btn-secondary flex items-center gap-2 border-secondary-500 text-secondary-foreground hover:bg-secondary-600 hover:text-secondary-foreground dark:hover:bg-secondary-600"
     >
       <LogOut className="h-4 w-4" />
       {texts[language].signOut}
     </Button>
   ) : (
     <Link to="/login">
-      <Button className="flex items-center gap-2 bg-indigo-500 text-white hover:bg-indigo-600">
+      <Button className="btn-primary flex items-center gap-2 text-primary-foreground hover:bg-primary-600">
         <LogIn className="h-4 w-4" />
         {texts[language].text}
       </Button>

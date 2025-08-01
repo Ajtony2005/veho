@@ -1,11 +1,10 @@
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "./ui/dialog";
-import { Button } from "./ui/button";
+} from "../components/ui/dialog";
+import { Button } from "../components/ui/button";
 
 interface ModalProps {
   message: string;
@@ -14,23 +13,31 @@ interface ModalProps {
 
 function Modal({ message, onClose }: ModalProps) {
   return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="card max-w-md">
         <DialogHeader>
-          <DialogTitle>Hiba</DialogTitle>
+          <DialogTitle className="text-center text-foreground">
+            {message.includes("Sikeres") || message.includes("successful")
+              ? "Siker"
+              : "Hiba"}
+          </DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col items-center gap-4">
-          <img src="/nope.png" alt="Error" className="w-16 h-16" />
-          <p className="text-gray-600 dark:text-gray-300">{message}</p>
-        </div>
-        <DialogFooter>
-          <Button
-            onClick={onClose}
-            className="bg-indigo-500 text-white hover:bg-indigo-600"
+        <div className="p-4 text-center">
+          <p
+            className={
+              message.includes("Sikeres") || message.includes("successful")
+                ? "text-secondary"
+                : "text-destructive"
+            }
           >
-            OK
+            {message}
+          </p>
+        </div>
+        <div className="flex justify-center">
+          <Button onClick={onClose} className="btn-primary">
+            Bezárás
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
