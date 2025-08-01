@@ -1,13 +1,28 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAtom } from "jotai";
+import { useNavigate } from "react-router-dom";
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  GoogleAuthProvider,
+  FacebookAuthProvider,
+  GithubAuthProvider,
+  signInWithPopup,
+  getRedirectResult,
+} from "firebase/auth";
 import { Facebook, Github, Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
+import { auth } from "../lib/firebase";
 import { languageAtom } from "../store/languageAtom";
+import { userAtom } from "../store/userAtom";
+import { useUserRepository } from "../repository/UserRepository";
 import { FaGoogle } from "react-icons/fa";
 
-// Texts
+// Szövegek
 const texts = {
   hu: {
     login: {
@@ -30,11 +45,23 @@ const texts = {
       passwordMismatch: "A jelszavak nem egyeznek meg.",
       invalidPassword:
         "A jelszónak tartalmaznia kell legalább 8 karaktert, minimum 1 nagybetűt és 1 számot.",
+      emailInUse: "Ez az email cím már használatban van.",
       invalidCredentials: "A hitelesítési adatok érvénytelenek.",
+      userNotFound:
+        "Még nincs fiókod ezzel az email címmel. Kérjük, regisztrálj!",
+      wrongPassword: "Helytelen jelszó!",
+      emailNotVerified:
+        "Az email cím még nincs megerősítve. Kérjük, ellenőrizze a beérkezett leveleket.",
       invalidEmail: "Kérjük, add meg a helyes email címed!",
+      authError: "Hiba a bejelentkezés során, kérjük próbáld újra.",
+      resetError:
+        "Hiba történt a jelszó visszaállítás során, kérjük próbáld újra.",
+      popupBlocked:
+        "A felugró ablak blokkolva van. Kérjük engedélyezd a felugró ablakokat.",
+      popupClosed: "A bejelentkezési ablak bezárult. Kérjük próbáld újra.",
     },
     success: {
-      register: "Sikeres regisztráció! Üdvözlünk!",
+      register: "Sikeres regisztráció! Kérjük, ellenőrizd az email címedet.",
       login: "Sikeres bejelentkezés! Átirányítás...",
       reset: "Email elküldve a jelszó visszaállításához!",
     },
@@ -60,11 +87,20 @@ const texts = {
       passwordMismatch: "The passwords do not match.",
       invalidPassword:
         "The password must contain at least 8 characters, including 1 uppercase letter and 1 number.",
+      emailInUse: "This email address is already in use.",
       invalidCredentials: "The credentials are invalid.",
+      userNotFound: "No account found with this email. Please register!",
+      wrongPassword: "Incorrect password!",
+      emailNotVerified:
+        "The email address is not yet verified. Please check your inbox.",
       invalidEmail: "Please enter a valid email address!",
+      authError: "An error occurred during sign-in. Please try again.",
+      resetError: "An error occurred during password reset. Please try again.",
+      popupBlocked: "Popup blocked. Please allow popups for this site.",
+      popupClosed: "Sign-in window was closed. Please try again.",
     },
     success: {
-      register: "Registration successful! Welcome!",
+      register: "Registration successful! Please verify your email address.",
       login: "Login successful! Redirecting...",
       reset: "Email sent for password reset!",
     },
@@ -80,16 +116,40 @@ function Login() {
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [language] = useAtom(languageAtom);
+  const [user, setUser] = useAtom(userAtom);
+  const navigate = useNavigate();
+  const { updateUserDataInFirestore } = useUserRepository();
+
+  useEffect(() => {
+    const handleRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          setUser(result.user);
+          // Firestore-ban tároljuk a felhasználói adatokat
+          await updateUserDataInFirestore({
+            email: result.user.email,
+            displayName: result.user.displayName,
+            createdAt: new Date().toISOString(),
+          });
+          setSuccessMessage(texts[language].success.login);
+          setTimeout(() => navigate("/"), 1500);
+        }
+      } catch (error: any) {
+        setError(texts[language].errors.authError);
+        setIsLoading(false);
+      }
+    };
+    handleRedirectResult();
+  }, [navigate, setUser, language, updateUserDataInFirestore]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setSuccessMessage("");
     setIsLoading(true);
-
-    // Simulate loading
-    await new Promise((resolve) => setTimeout(resolve, 1500));
 
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
 
@@ -104,28 +164,138 @@ function Login() {
         setIsLoading(false);
         return;
       }
-      setSuccessMessage(texts[language].success.register);
+      try {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+        setUser(userCredential.user);
+        await sendEmailVerification(userCredential.user);
+        // Firestore-ban tároljuk a felhasználói adatokat
+        await updateUserDataInFirestore({
+          email: userCredential.user.email,
+          displayName: userCredential.user.displayName,
+          createdAt: new Date().toISOString(),
+        });
+        setSuccessMessage(texts[language].success.register);
+      } catch (error: any) {
+        const errorCode = error.code;
+        if (errorCode === "auth/email-already-in-use") {
+          setError(texts[language].errors.emailInUse);
+        } else if (errorCode === "auth/invalid-email") {
+          setError(texts[language].errors.invalidEmail);
+        } else {
+          setError(texts[language].errors.authError);
+        }
+        setIsLoading(false);
+      }
     } else {
-      if (email && password) {
-        setSuccessMessage(texts[language].success.login);
-        console.log("Login attempt:", { email, password });
-      } else {
-        setError(texts[language].errors.invalidCredentials);
+      try {
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+        setUser(userCredential.user);
+        if (!userCredential.user.emailVerified) {
+          setError(texts[language].errors.emailNotVerified);
+          setIsLoading(false);
+        } else {
+          setSuccessMessage(texts[language].success.login);
+          setTimeout(() => navigate("/"), 1500);
+        }
+      } catch (error: any) {
+        const errorCode = error.code;
+        if (errorCode === "auth/invalid-credential") {
+          setError(texts[language].errors.invalidCredentials);
+        } else if (errorCode === "auth/user-not-found") {
+          setError(texts[language].errors.userNotFound);
+        } else if (errorCode === "auth/wrong-password") {
+          setError(texts[language].errors.wrongPassword);
+        } else {
+          setError(texts[language].errors.authError);
+        }
+        setIsLoading(false);
       }
     }
-    setIsLoading(false);
   };
 
-  const handleSocialLogin = (provider: string) => {
-    console.log(`${provider} login clicked`);
+  const handleSocialLogin = async (provider: string) => {
+    try {
+      setError("");
+      setSocialLoading(provider);
+
+      let authProvider;
+      switch (provider) {
+        case "Google":
+          authProvider = new GoogleAuthProvider();
+          // Opcionális: extra scope-ok hozzáadása
+          authProvider.addScope("profile");
+          authProvider.addScope("email");
+          break;
+        case "Facebook":
+          authProvider = new FacebookAuthProvider();
+          authProvider.addScope("email");
+          break;
+        case "GitHub":
+          authProvider = new GithubAuthProvider();
+          authProvider.addScope("user:email");
+          break;
+        default:
+          throw new Error("Érvénytelen provider");
+      }
+
+      // Popup authentikáció használata redirect helyett
+      const result = await signInWithPopup(auth, authProvider);
+
+      if (result.user) {
+        setUser(result.user);
+        // Firestore-ban tároljuk a felhasználói adatokat
+        await updateUserDataInFirestore({
+          email: result.user.email,
+          displayName: result.user.displayName,
+          photoURL: result.user.photoURL,
+          createdAt: new Date().toISOString(),
+          provider: provider.toLowerCase(),
+        });
+
+        setSuccessMessage(texts[language].success.login);
+        setTimeout(() => navigate("/"), 1500);
+      }
+    } catch (error: any) {
+      console.error("Social login error:", error);
+
+      const errorCode = error.code;
+      if (errorCode === "auth/popup-blocked") {
+        setError(texts[language].errors.popupBlocked);
+      } else if (errorCode === "auth/popup-closed-by-user") {
+        setError(texts[language].errors.popupClosed);
+      } else if (errorCode === "auth/cancelled-popup-request") {
+        // User cancelled, don't show error
+        setError("");
+      } else {
+        setError(texts[language].errors.authError);
+      }
+    } finally {
+      setSocialLoading(null);
+    }
   };
 
-  const handleForgotPassword = () => {
+  const handleForgotPassword = async () => {
     if (!email.includes("@")) {
       setError(texts[language].errors.invalidEmail);
       return;
     }
-    setSuccessMessage(texts[language].success.reset);
+    try {
+      setIsLoading(true);
+      await sendPasswordResetEmail(auth, email);
+      setSuccessMessage(texts[language].success.reset);
+      setIsLoading(false);
+    } catch (error: any) {
+      setError(texts[language].errors.resetError);
+      setIsLoading(false);
+    }
   };
 
   const toggleForm = () => {
@@ -296,7 +466,9 @@ function Login() {
                 </div>
                 <div className="relative flex justify-center text-sm">
                   <span className="px-4 bg-transparent text-white/70">
-                    or continue with
+                    {language === "hu"
+                      ? "vagy folytasd ezzel"
+                      : "or continue with"}
                   </span>
                 </div>
               </div>
@@ -305,26 +477,43 @@ function Login() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="bg-white/10 border-white/30 text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300 backdrop-blur-sm"
+                  className="bg-white/10 border-white/30 text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300 backdrop-blur-sm group relative overflow-hidden"
                   onClick={() => handleSocialLogin("Google")}
+                  disabled={socialLoading !== null}
                 >
-                  <FaGoogle className="w-4 h-4" />
+                  {socialLoading === "Google" ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <FaGoogle className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+                  )}
                 </Button>
+
                 <Button
                   type="button"
                   variant="outline"
-                  className="bg-white/10 border-white/30 text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300 backdrop-blur-sm"
+                  className="bg-white/10 border-white/30 text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300 backdrop-blur-sm group relative overflow-hidden"
                   onClick={() => handleSocialLogin("Facebook")}
+                  disabled={socialLoading !== null}
                 >
-                  <Facebook className="w-4 h-4" />
+                  {socialLoading === "Facebook" ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <Facebook className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+                  )}
                 </Button>
+
                 <Button
                   type="button"
                   variant="outline"
-                  className="bg-white/10 border-white/30 text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300 backdrop-blur-sm"
+                  className="bg-white/10 border-white/30 text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300 backdrop-blur-sm group relative overflow-hidden"
                   onClick={() => handleSocialLogin("GitHub")}
+                  disabled={socialLoading !== null}
                 >
-                  <Github className="w-4 h-4" />
+                  {socialLoading === "GitHub" ? (
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  ) : (
+                    <Github className="w-4 h-4 group-hover:scale-110 transition-transform duration-300" />
+                  )}
                 </Button>
               </div>
 
