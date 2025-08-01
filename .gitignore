@@ -33,3 +33,6 @@ coverage/
 
 # Miscellaneous
 *.local
+# Temporary files
+.env
+.env*
