@@ -9,9 +9,7 @@ lerna-debug.log*
 
 # Node modules and build outputs
 node_modules/
-dist/
 dist-ssr/
-build/
 coverage/
 .pnp/
 .pnp.js
@@ -35,3 +33,6 @@ coverage/
 
 # Miscellaneous
 *.local
+# Temporary files
+.env
+.env*
