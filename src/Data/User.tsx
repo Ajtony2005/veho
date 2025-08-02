@@ -1,7 +1,50 @@
-import { User as FirebaseUser } from "firebase/auth";
+export interface User {
+  uid?: string; // Firebase UID
+  email: string | null; // Email can be null from some providers
+  displayName: string | null; // Felhasználónév vagy név
+  photoURL?: string | null; // Profilkép URL
+  createdAt?: string; // Létrehozás időpontja (ISO string)
+  updatedAt?: string; // Frissítés időpontja (ISO string)
+  bio?: string; // Rövid bemutatkozás
+  role?: "user" | "admin" | "moderator"; // Szerepkör
+  language?: "hu" | "en"; // Preferált nyelv
+  lastLoginAt?: string; // Utolsó bejelentkezés időpontja (ISO string)
+  isActive?: boolean; // Fiók aktív-e
+  socialLinks?: {
+    github?: string;
+    linkedin?: string;
+    twitter?: string;
+    facebook?: string;
+  }; // Közösségi média linkek
+  ideasCount?: number; // Megosztott ötletek száma
+  timezone?: string; // Időzóna (pl. "Europe/Budapest")
 
-export interface User extends FirebaseUser {
-  displayName?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
+  // Account linking fields
+  providers?: string[]; // Array of auth providers used: ['email', 'google', 'facebook', 'github']
+  primaryProvider?: string; // Primary authentication method
+  linkedAccounts?: {
+    google?: {
+      uid: string;
+      email: string | null;
+      displayName?: string;
+      photoURL?: string;
+    };
+    facebook?: {
+      uid: string;
+      email: string | null;
+      displayName?: string;
+      photoURL?: string;
+    };
+    github?: {
+      uid: string;
+      email: string | null;
+      displayName?: string;
+      photoURL?: string;
+    };
+    email?: {
+      uid: string;
+      email: string;
+      displayName?: string;
+    };
+  };
 }

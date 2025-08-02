@@ -22,7 +22,7 @@ import { userAtom } from "../store/userAtom";
 import { useUserRepository } from "../repository/UserRepository";
 import { FaGoogle } from "react-icons/fa";
 
-// Szövegek
+// Enhanced texts with account linking messages
 const texts = {
   hu: {
     login: {
@@ -64,6 +64,13 @@ const texts = {
       register: "Sikeres regisztráció! Kérjük, ellenőrizd az email címedet.",
       login: "Sikeres bejelentkezés! Átirányítás...",
       reset: "Email elküldve a jelszó visszaállításához!",
+      accountLinked:
+        "Fiók sikeresen összekapcsolva! Most már több módon is bejelentkezhetsz.",
+    },
+    accountLinking: {
+      existingAccount: "Már van fiókod ezzel az email címmel",
+      linking: "Fiók összekapcsolása...",
+      linkedSuccessfully: "Fiók sikeresen összekapcsolva",
     },
   },
   en: {
@@ -103,6 +110,13 @@ const texts = {
       register: "Registration successful! Please verify your email address.",
       login: "Login successful! Redirecting...",
       reset: "Email sent for password reset!",
+      accountLinked:
+        "Account successfully linked! You can now sign in with multiple methods.",
+    },
+    accountLinking: {
+      existingAccount: "You already have an account with this email",
+      linking: "Linking account...",
+      linkedSuccessfully: "Account successfully linked",
     },
   },
 };
@@ -119,21 +133,22 @@ function Login() {
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
   const [language] = useAtom(languageAtom);
   const [user, setUser] = useAtom(userAtom);
+  const [linkingProvider, setLinkingProvider] = useState<string | null>(null);
+  const [pendingCredential, setPendingCredential] = useState<any>(null);
   const navigate = useNavigate();
-  const { updateUserDataInFirestore } = useUserRepository();
+  const { handleUserAuthentication, extractEmailFromProvider } =
+    useUserRepository();
 
   useEffect(() => {
     const handleRedirectResult = async () => {
       try {
         const result = await getRedirectResult(auth);
         if (result) {
-          setUser(result.user);
-          // Firestore-ban tároljuk a felhasználói adatokat
-          await updateUserDataInFirestore({
-            email: result.user.email,
-            displayName: result.user.displayName,
-            createdAt: new Date().toISOString(),
-          });
+          const userData = await handleUserAuthentication(
+            result.user,
+            "redirect"
+          );
+          setUser(userData);
           setSuccessMessage(texts[language].success.login);
           setTimeout(() => navigate("/"), 1500);
         }
@@ -143,7 +158,7 @@ function Login() {
       }
     };
     handleRedirectResult();
-  }, [navigate, setUser, language, updateUserDataInFirestore]);
+  }, [navigate, setUser, language, handleUserAuthentication]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -170,15 +185,17 @@ function Login() {
           email,
           password
         );
-        setUser(userCredential.user);
         await sendEmailVerification(userCredential.user);
-        // Firestore-ban tároljuk a felhasználói adatokat
-        await updateUserDataInFirestore({
-          email: userCredential.user.email,
-          displayName: userCredential.user.displayName,
-          createdAt: new Date().toISOString(),
-        });
+
+        // Handle user authentication with account linking
+        const userData = await handleUserAuthentication(
+          userCredential.user,
+          "email"
+        );
+        setUser(userData);
+
         setSuccessMessage(texts[language].success.register);
+        setIsLoading(false);
       } catch (error: any) {
         const errorCode = error.code;
         if (errorCode === "auth/email-already-in-use") {
@@ -197,11 +214,18 @@ function Login() {
           email,
           password
         );
-        setUser(userCredential.user);
+
         if (!userCredential.user.emailVerified) {
           setError(texts[language].errors.emailNotVerified);
           setIsLoading(false);
         } else {
+          // Handle user authentication with account linking
+          const userData = await handleUserAuthentication(
+            userCredential.user,
+            "email"
+          );
+          setUser(userData);
+
           setSuccessMessage(texts[language].success.login);
           setTimeout(() => navigate("/"), 1500);
         }
@@ -230,38 +254,83 @@ function Login() {
       switch (provider) {
         case "Google":
           authProvider = new GoogleAuthProvider();
-          // Opcionális: extra scope-ok hozzáadása
           authProvider.addScope("profile");
           authProvider.addScope("email");
+          authProvider.setCustomParameters({
+            prompt: "select_account",
+          });
           break;
         case "Facebook":
           authProvider = new FacebookAuthProvider();
           authProvider.addScope("email");
+          authProvider.addScope("public_profile");
           break;
         case "GitHub":
           authProvider = new GithubAuthProvider();
           authProvider.addScope("user:email");
+          authProvider.addScope("read:user");
           break;
         default:
           throw new Error("Érvénytelen provider");
       }
 
-      // Popup authentikáció használata redirect helyett
+      // Popup authentikáció használata
       const result = await signInWithPopup(auth, authProvider);
 
       if (result.user) {
-        setUser(result.user);
-        // Firestore-ban tároljuk a felhasználói adatokat
-        await updateUserDataInFirestore({
+        console.log("Social login result:", {
+          uid: result.user.uid,
           email: result.user.email,
           displayName: result.user.displayName,
           photoURL: result.user.photoURL,
-          createdAt: new Date().toISOString(),
-          provider: provider.toLowerCase(),
+          emailVerified: result.user.emailVerified,
+          providerData: result.user.providerData,
         });
 
-        setSuccessMessage(texts[language].success.login);
-        setTimeout(() => navigate("/"), 1500);
+        // Extract email using enhanced method
+        const extractedEmail = await extractEmailFromProvider(result, provider);
+
+        console.log(`Extracted email from ${provider}:`, extractedEmail);
+
+        // Create user object with extracted email
+        const userWithEmail = {
+          ...result.user,
+          email: extractedEmail || result.user.email,
+        };
+
+        // Handle user authentication with account linking
+        try {
+          const userData = await handleUserAuthentication(
+            userWithEmail as any,
+            provider.toLowerCase(),
+            {
+              provider: provider.toLowerCase(),
+              lastLoginAt: new Date().toISOString(),
+              email: extractedEmail || result.user.email,
+            }
+          );
+
+          setUser(userData);
+
+          // Show appropriate success message
+          if (userData.providers && userData.providers.length > 1) {
+            setSuccessMessage(texts[language].success.accountLinked);
+          } else {
+            setSuccessMessage(texts[language].success.login);
+          }
+
+          setTimeout(() => navigate("/"), 1500);
+        } catch (firestoreError) {
+          console.warn(
+            "Firestore operation failed, but login succeeded:",
+            firestoreError
+          );
+
+          // Fallback: set user directly and continue
+          setUser(userWithEmail as any);
+          setSuccessMessage(texts[language].success.login);
+          setTimeout(() => navigate("/"), 1500);
+        }
       }
     } catch (error: any) {
       console.error("Social login error:", error);
@@ -272,8 +341,24 @@ function Login() {
       } else if (errorCode === "auth/popup-closed-by-user") {
         setError(texts[language].errors.popupClosed);
       } else if (errorCode === "auth/cancelled-popup-request") {
-        // User cancelled, don't show error
         setError("");
+      } else if (errorCode === "auth/unauthorized-domain") {
+        setError(
+          "Unauthorized domain. Please check your Firebase configuration."
+        );
+      } else if (
+        errorCode === "auth/account-exists-with-different-credential"
+      ) {
+        // Store the credential for later linking
+        setPendingCredential(error.credential);
+        setLinkingProvider(provider);
+
+        const existingEmail = error.customData?.email || error.email;
+        setError(
+          language === "hu"
+            ? `Már létezik fiók ezzel az email címmel (${existingEmail}). Jelentkezz be először a másik módszerrel, majd a Profilban kapcsolhatod össze a fiókokat.`
+            : `An account already exists with this email (${existingEmail}). Please sign in with your existing method first, then link accounts in your Profile.`
+        );
       } else {
         setError(texts[language].errors.authError);
       }
@@ -281,7 +366,6 @@ function Login() {
       setSocialLoading(null);
     }
   };
-
   const handleForgotPassword = async () => {
     if (!email.includes("@")) {
       setError(texts[language].errors.invalidEmail);
