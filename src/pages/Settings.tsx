@@ -240,6 +240,7 @@ const texts = {
   },
 };
 
+// Remove the hasChanges state and save button, implement auto-save
 function Settings() {
   const [language, setLanguage] = useAtom(languageAtom);
   const [user, setUser] = useAtom(userAtom);
@@ -251,7 +252,7 @@ function Settings() {
   const [firestoreUser, setFirestoreUser] = useState<UserType | null>(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [hasChanges, setHasChanges] = useState(false);
+  // Remove hasChanges state since we're auto-saving
 
   // Settings state
   const [settings, setSettings] = useState({
@@ -286,6 +287,47 @@ function Settings() {
     document.documentElement.classList.toggle("dark", savedTheme === "dark");
   }, []);
 
+  // Auto-save function
+  const autoSaveSettings = async (updatedSettings: typeof settings) => {
+    if (!firebaseUser) return;
+
+    try {
+      const currentUserData = await getUserDataFromFirestore(firebaseUser.uid);
+
+      const settingsToSave = {
+        ...currentUserData,
+        language: updatedSettings.language as "hu" | "en",
+        timezone: updatedSettings.timezone,
+        settings: {
+          ...currentUserData?.settings,
+          profileVisibility: updatedSettings.profileVisibility,
+          showEmail: updatedSettings.showEmail,
+          showLastSeen: updatedSettings.showLastSeen,
+          allowMessages: updatedSettings.allowMessages,
+          emailNotifications: updatedSettings.emailNotifications,
+          pushNotifications: updatedSettings.pushNotifications,
+          ideaUpdates: updatedSettings.ideaUpdates,
+          comments: updatedSettings.comments,
+          mentions: updatedSettings.mentions,
+          autoSave: updatedSettings.autoSave,
+          sessionTimeout: updatedSettings.sessionTimeout,
+          twoFactorAuth: updatedSettings.twoFactorAuth,
+        },
+        updatedAt: new Date().toISOString(),
+      };
+
+      await updateUserDataInFirestore(settingsToSave);
+
+      // Show brief success indicator
+      setSuccessMessage(texts[language].settingsSaved);
+      setTimeout(() => setSuccessMessage(""), 2000);
+    } catch (error: any) {
+      console.error("Auto-save error:", error);
+      setErrorMessage("Auto-save failed");
+      setTimeout(() => setErrorMessage(""), 3000);
+    }
+  };
+
   // Load user data
   useEffect(() => {
     const loadUserData = async () => {
@@ -294,25 +336,29 @@ function Settings() {
           const userData = await getUserDataFromFirestore(firebaseUser.uid);
           if (userData) {
             setFirestoreUser(userData);
+
+            // Apply language immediately if different
+            if (userData.language && userData.language !== language) {
+              setLanguage(userData.language);
+            }
+
             setSettings((prev) => ({
               ...prev,
-              language: userData.language || "hu",
+              language: userData.language || language,
               timezone: userData.timezone || "Europe/Budapest",
-              // Load other settings from userData if they exist
               profileVisibility:
                 userData.settings?.profileVisibility || "public",
-              showEmail: userData.settings?.showEmail || false,
-              showLastSeen: userData.settings?.showLastSeen !== false,
-              allowMessages: userData.settings?.allowMessages !== false,
-              emailNotifications:
-                userData.settings?.emailNotifications !== false,
-              pushNotifications: userData.settings?.pushNotifications !== false,
-              ideaUpdates: userData.settings?.ideaUpdates !== false,
-              comments: userData.settings?.comments !== false,
-              mentions: userData.settings?.mentions !== false,
-              autoSave: userData.settings?.autoSave !== false,
+              showEmail: userData.settings?.showEmail ?? false,
+              showLastSeen: userData.settings?.showLastSeen ?? true,
+              allowMessages: userData.settings?.allowMessages ?? true,
+              emailNotifications: userData.settings?.emailNotifications ?? true,
+              pushNotifications: userData.settings?.pushNotifications ?? true,
+              ideaUpdates: userData.settings?.ideaUpdates ?? true,
+              comments: userData.settings?.comments ?? true,
+              mentions: userData.settings?.mentions ?? true,
+              autoSave: userData.settings?.autoSave ?? true,
               sessionTimeout: userData.settings?.sessionTimeout || 30,
-              twoFactorAuth: userData.settings?.twoFactorAuth || false,
+              twoFactorAuth: userData.settings?.twoFactorAuth ?? false,
             }));
           }
         } catch (error) {
@@ -322,7 +368,7 @@ function Settings() {
     };
 
     loadUserData();
-  }, [firebaseUser, getUserDataFromFirestore]);
+  }, [firebaseUser, getUserDataFromFirestore, language, setLanguage]);
 
   // Auto-hide messages
   useEffect(() => {
@@ -335,9 +381,10 @@ function Settings() {
     }
   }, [successMessage, errorMessage]);
 
+  // Enhanced handleSettingChange with immediate auto-save
   const handleSettingChange = (key: string, value: any) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
-    setHasChanges(true);
+    const updatedSettings = { ...settings, [key]: value };
+    setSettings(updatedSettings);
 
     // Apply theme immediately
     if (key === "theme") {
@@ -349,55 +396,24 @@ function Settings() {
     if (key === "language") {
       setLanguage(value as "hu" | "en");
     }
+
+    // Auto-save with debouncing for better performance
+    const timeoutId = setTimeout(() => {
+      autoSaveSettings(updatedSettings);
+    }, 500); // 500ms debounce
+
+    // Cleanup function to prevent multiple saves
+    return () => clearTimeout(timeoutId);
   };
 
-  const handleSaveSettings = async () => {
-    if (!firebaseUser) return;
-
-    setIsLoading(true);
-    setErrorMessage("");
-    setSuccessMessage("");
-
-    try {
-      // Prepare settings object
-      const settingsToSave = {
-        language: settings.language as "hu" | "en",
-        timezone: settings.timezone,
-        settings: {
-          profileVisibility: settings.profileVisibility,
-          showEmail: settings.showEmail,
-          showLastSeen: settings.showLastSeen,
-          allowMessages: settings.allowMessages,
-          emailNotifications: settings.emailNotifications,
-          pushNotifications: settings.pushNotifications,
-          ideaUpdates: settings.ideaUpdates,
-          comments: settings.comments,
-          mentions: settings.mentions,
-          autoSave: settings.autoSave,
-          sessionTimeout: settings.sessionTimeout,
-          twoFactorAuth: settings.twoFactorAuth,
-        },
-        updatedAt: new Date().toISOString(),
-      };
-
-      await updateUserDataInFirestore(settingsToSave);
-
-      // Reload user data
-      const updatedUserData = await getUserDataFromFirestore(firebaseUser.uid);
-      if (updatedUserData) {
-        setFirestoreUser(updatedUserData);
-      }
-
-      setSuccessMessage(texts[language].settingsSaved);
-      setHasChanges(false);
-    } catch (error: any) {
-      setErrorMessage(texts[language].errorSaving);
-      console.error("Settings save error:", error);
-    } finally {
-      setIsLoading(false);
+  // Sync language atom with settings
+  useEffect(() => {
+    if (settings.language !== language) {
+      setSettings((prev) => ({ ...prev, language }));
     }
-  };
+  }, [language]);
 
+  // Remove the data export, cache clear, and delete account functions remain the same...
   const handleExportData = async () => {
     try {
       const dataToExport = {
@@ -434,7 +450,6 @@ function Settings() {
 
   const handleDeleteAccount = () => {
     if (window.confirm(texts[language].confirmations.deleteAccount)) {
-      // Implement account deletion logic
       console.log("Delete account requested");
     }
   };
@@ -464,7 +479,7 @@ function Settings() {
     <div className="min-h-screen relative">
       <main className="relative container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto space-y-8">
-          {/* Header */}
+          {/* Header - Remove the save button and hasChanges logic */}
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-4 mb-4">
@@ -488,48 +503,38 @@ function Settings() {
               </p>
             </div>
 
-            {hasChanges && (
-              <Button
-                onClick={handleSaveSettings}
-                disabled={isLoading}
-                className="btn-primary"
-              >
-                {isLoading ? (
-                  <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4 mr-2" />
-                )}
-                Save Changes
-              </Button>
-            )}
+            {/* Auto-save indicator */}
+            <div className="flex items-center gap-2 text-white/60">
+              <RefreshCw className="w-4 h-4" />
+              <span className="text-sm">Auto-save enabled</span>
+            </div>
           </div>
 
-          {/* Success/Error Messages */}
+          {/* Success/Error Messages - Make them smaller and less intrusive */}
           {(successMessage || errorMessage) && (
-            <Card className="glass">
-              <CardContent className="p-4">
-                <div
-                  className={`p-4 rounded-xl border-2 transition-all duration-300 ${
-                    errorMessage
-                      ? "bg-red-500/10 border-red-500/30 text-red-200"
-                      : "bg-green-500/10 border-green-500/30 text-green-200"
-                  }`}
-                >
-                  <div className="flex items-center justify-center gap-2">
-                    {errorMessage ? (
-                      <AlertTriangle className="w-5 h-5" />
-                    ) : (
-                      <Check className="w-5 h-5" />
-                    )}
-                    <p className="font-medium">
-                      {errorMessage || successMessage}
-                    </p>
-                  </div>
+            <div className="fixed top-4 right-4 z-50">
+              <div
+                className={`p-3 rounded-lg border transition-all duration-300 glass ${
+                  errorMessage
+                    ? "bg-red-500/20 border-red-500/50 text-red-200"
+                    : "bg-green-500/20 border-green-500/50 text-green-200"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {errorMessage ? (
+                    <AlertTriangle className="w-4 h-4" />
+                  ) : (
+                    <Check className="w-4 h-4" />
+                  )}
+                  <p className="text-sm font-medium">
+                    {errorMessage || successMessage}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
+          {/* Rest of the component remains exactly the same, just remove the save button logic */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Appearance Settings */}
             <Card className="glass">

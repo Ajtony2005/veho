@@ -281,7 +281,8 @@ function Profile() {
   // Load user data from Firestore
   useEffect(() => {
     const loadUserData = async () => {
-      if (firebaseUser?.uid) {
+      if (firebaseUser?.uid && !isEditing) {
+        // Only load if not editing
         try {
           const userData = await getUserDataFromFirestore(firebaseUser.uid);
           if (userData) {
@@ -306,7 +307,7 @@ function Profile() {
     };
 
     loadUserData();
-  }, [firebaseUser, getUserDataFromFirestore]);
+  }, [firebaseUser?.uid, getUserDataFromFirestore, isEditing]); // Add isEditing to dependencies
 
   // Auto-hide messages after 5 seconds
   useEffect(() => {
@@ -364,7 +365,7 @@ function Profile() {
       }
 
       setSuccessMessage(texts[language].profileUpdated);
-      setIsEditing(false);
+      setIsEditing(false); // This will trigger the data reload
     } catch (error: any) {
       setErrorMessage(texts[language].updateFailed);
       console.error("Profile update error:", error);
@@ -372,7 +373,24 @@ function Profile() {
       setIsLoading(false);
     }
   };
-
+  const handleCancelEdit = () => {
+    if (firestoreUser) {
+      // Reset form data to original values
+      setFormData({
+        displayName: firestoreUser.displayName || "",
+        bio: firestoreUser.bio || "",
+        location: firestoreUser.location || "",
+        website: firestoreUser.website || "",
+        socialLinks: {
+          github: firestoreUser.socialLinks?.github || "",
+          linkedin: firestoreUser.socialLinks?.linkedin || "",
+          twitter: firestoreUser.socialLinks?.twitter || "",
+          facebook: firestoreUser.socialLinks?.facebook || "",
+        },
+      });
+    }
+    setIsEditing(false);
+  };
   const handleSignOut = async () => {
     if (window.confirm(texts[language].confirmations.signOut)) {
       try {
@@ -383,6 +401,22 @@ function Profile() {
       }
     }
   };
+  useEffect(() => {
+    if (isEditing && firestoreUser) {
+      setFormData({
+        displayName: firestoreUser.displayName || "",
+        bio: firestoreUser.bio || "",
+        location: firestoreUser.location || "",
+        website: firestoreUser.website || "",
+        socialLinks: {
+          github: firestoreUser.socialLinks?.github || "",
+          linkedin: firestoreUser.socialLinks?.linkedin || "",
+          twitter: firestoreUser.socialLinks?.twitter || "",
+          facebook: firestoreUser.socialLinks?.facebook || "",
+        },
+      });
+    }
+  }, [isEditing, firestoreUser]);
 
   // Utility functions
   const formatDate = (dateString?: string) => {
@@ -877,24 +911,36 @@ function Profile() {
                         </div>
 
                         {/* Save Button */}
+                        {/* Save and Cancel Buttons */}
                         <div className="pt-4 border-t border-white/20">
-                          <Button
-                            onClick={handleSaveProfile}
-                            disabled={isLoading}
-                            className="btn-primary w-full"
-                          >
-                            {isLoading ? (
-                              <div className="flex items-center gap-2">
-                                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                Saving...
-                              </div>
-                            ) : (
-                              <>
-                                <Save className="w-4 h-4 mr-2" />
-                                {texts[language].saveChanges}
-                              </>
-                            )}
-                          </Button>
+                          <div className="flex gap-3">
+                            <Button
+                              onClick={handleSaveProfile}
+                              disabled={isLoading}
+                              className="btn-primary flex-1"
+                            >
+                              {isLoading ? (
+                                <div className="flex items-center gap-2">
+                                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                  Saving...
+                                </div>
+                              ) : (
+                                <>
+                                  <Save className="w-4 h-4 mr-2" />
+                                  {texts[language].saveChanges}
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={handleCancelEdit}
+                              disabled={isLoading}
+                              className="glass border-white/30 text-white hover:bg-white/20 hover:border-white/50 transition-all duration-300 flex-1"
+                            >
+                              <X className="w-4 h-4 mr-2" />
+                              {texts[language].cancel}
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     ) : (
