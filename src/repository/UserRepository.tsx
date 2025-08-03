@@ -132,7 +132,7 @@ export const useUserRepository = () => {
     }
   };
 
-  // Enhanced updateUserDataInFirestore implementation
+  // Enhanced updateUserDataInFirestore implementation with settings support
   const updateUserDataInFirestore = async (
     data: Partial<User>
   ): Promise<void> => {
@@ -201,6 +201,11 @@ export const useUserRepository = () => {
         linkedAccounts:
           data.linkedAccounts || existingData.linkedAccounts || {},
         socialLinks: data.socialLinks || existingData.socialLinks || {},
+        // Handle settings object safely
+        settings: {
+          ...existingData.settings,
+          ...data.settings,
+        },
         // Handle bio specifically to avoid undefined
         bio: safeValue(data.bio, existingData.bio, null),
         primaryProvider: safeValue(
@@ -229,13 +234,14 @@ export const useUserRepository = () => {
     }
   };
 
+  // ... rest of the methods remain the same but I'll include the key ones for completeness
+
   const getAvailableProvidersForLinking = (): string[] => {
     const allProviders = ["google", "facebook", "github"];
     const userProviders = user?.providers || [];
     return allProviders.filter((provider) => !userProviders.includes(provider));
   };
 
-  // Find user by UID (fallback when email is not available)
   const findUserByUid = async (uid: string): Promise<User | null> => {
     try {
       const userDoc = await getDoc(doc(db, "users", uid));
@@ -255,7 +261,6 @@ export const useUserRepository = () => {
     return !user?.providers?.includes(provider.toLowerCase());
   };
 
-  // Link social account to existing user
   const linkSocialAccount = async (
     existingUser: User,
     provider: string,
@@ -285,10 +290,8 @@ export const useUserRepository = () => {
         ...existingUser,
         providers: updatedProviders,
         linkedAccounts: updatedLinkedAccounts,
-        // Update display info if not set or if new provider has better info
         displayName: existingUser.displayName || newUserData.displayName,
         photoURL: existingUser.photoURL || newUserData.photoURL,
-        // Update email if existing user doesn't have one but new provider does
         email: existingUser.email || newUserData.email,
         lastLoginAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
@@ -304,7 +307,6 @@ export const useUserRepository = () => {
     }
   };
 
-  // Create new user with provider info
   const createUserWithProvider = async (
     firebaseUser: FirebaseUser,
     provider: string,
@@ -342,6 +344,20 @@ export const useUserRepository = () => {
             photoURL: firebaseUser.photoURL,
           },
         },
+        settings: {
+          profileVisibility: "public",
+          showEmail: false,
+          showLastSeen: true,
+          allowMessages: true,
+          emailNotifications: true,
+          pushNotifications: true,
+          ideaUpdates: true,
+          comments: true,
+          mentions: true,
+          autoSave: true,
+          sessionTimeout: 30,
+          twoFactorAuth: false,
+        },
         ...additionalData,
       };
 
@@ -354,7 +370,6 @@ export const useUserRepository = () => {
     }
   };
 
-  // Main function to handle user authentication and prevent duplicate email accounts
   const handleUserAuthentication = async (
     firebaseUser: FirebaseUser,
     provider: string,
@@ -365,14 +380,11 @@ export const useUserRepository = () => {
         `Handling authentication for UID: ${firebaseUser.uid}, email: ${firebaseUser.email}, provider: ${provider}`
       );
 
-      // First, try to find existing user by UID (most reliable)
       let existingUser = await findUserByUid(firebaseUser.uid);
 
-      // If not found by UID and we have an email, try to find by email
       if (!existingUser && firebaseUser.email) {
         existingUser = await findUserByEmail(firebaseUser.email);
 
-        // If we found a user by email but different UID, throw an error
         if (existingUser && existingUser.uid !== firebaseUser.uid) {
           console.error(
             `Email ${firebaseUser.email} is already associated with another account (UID: ${existingUser.uid})`
@@ -388,26 +400,21 @@ export const useUserRepository = () => {
           "Found existing user, checking if provider is already linked"
         );
 
-        // User exists, check if this provider is already linked
         if (existingUser.providers?.includes(provider)) {
-          // Provider already linked, just update login time
           const updatedData = {
             ...existingUser,
             lastLoginAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
-            // Update email if user didn't have one before
             email: existingUser.email || firebaseUser.email,
           };
           await updateUserDataInFirestore(updatedData);
           console.log("Updated existing user login time");
           return updatedData;
         } else {
-          // Link this new provider to existing account
           console.log(`Linking ${provider} to existing account`);
           return await linkSocialAccount(existingUser, provider, firebaseUser);
         }
       } else {
-        // No existing user found, create new account
         console.log("No existing user found, creating new account");
         return await createUserWithProvider(
           firebaseUser,
@@ -421,7 +428,6 @@ export const useUserRepository = () => {
     }
   };
 
-  // Enhanced email extraction from social providers
   const extractEmailFromProvider = async (
     result: any,
     provider: string
@@ -434,25 +440,20 @@ export const useUserRepository = () => {
       tokenResponse: result._tokenResponse,
     });
 
-    // Try to get email from provider data
     if (!email && result.user.providerData.length > 0) {
       const providerData = result.user.providerData.find((p: any) => p.email);
       email = providerData?.email || null;
       console.log("Email from provider data:", email);
     }
 
-    // For GitHub, try to get email from additional API call if needed
     if (!email && provider.toLowerCase() === "github" && result.credential) {
       try {
-        // We could make an additional API call to GitHub here if needed
-        // For now, we'll work with what we have
         console.log("GitHub email not available in auth response");
       } catch (apiError) {
         console.log("Failed to fetch GitHub email from API:", apiError);
       }
     }
 
-    // Try token response as last resort
     if (!email && result._tokenResponse) {
       const tokenResponse = result._tokenResponse as any;
       email = tokenResponse.email || tokenResponse.emailAddress || null;
@@ -463,7 +464,6 @@ export const useUserRepository = () => {
     return email;
   };
 
-  // Rest of the methods remain the same...
   const getUser = async (): Promise<User | null> => {
     if (!auth.currentUser) return null;
     setUser(auth.currentUser as User);
@@ -477,13 +477,11 @@ export const useUserRepository = () => {
   ): Promise<void> => {
     if (!auth.currentUser) throw new Error("Nincs bejelentkezett felhasználó");
     try {
-      // Update Firebase Auth profile
       await updateProfile(auth.currentUser, {
         displayName: data.displayName,
         photoURL: data.photoURL,
       });
 
-      // Update Firestore data
       await updateUserDataInFirestore({
         ...data,
         updatedAt: new Date().toISOString(),

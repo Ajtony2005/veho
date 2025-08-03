@@ -9,6 +9,7 @@ import ShareIdea from "./pages/ShareIdea";
 import Profile from "./pages/Profile";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Header from "./components/Header";
+import Settings from "./pages/Settings";
 
 function App() {
   const [user] = useAtom(userAtom);
@@ -76,6 +77,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/settings" element={<Settings />} />
               <Route path="/ideas" element={<Ideas />} />
               <Route path="/share-idea" element={<ShareIdea />} />
               <Route path="/profile" element={<Profile />} />
