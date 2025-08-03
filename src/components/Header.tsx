@@ -63,32 +63,36 @@ function Header() {
           {/* Navigation Section */}
           <nav className="flex items-center gap-3">
             {/* Language Selector */}
-            <div className="relative">
-              <Select value={language} onValueChange={setLanguage}>
-                <SelectTrigger className="w-[120px] bg-white/10 border-white/30 text-white/90 hover:bg-white/20 transition-all duration-300 backdrop-blur-sm focus:border-primary/60">
-                  <div className="flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-white/70" />
-                    <SelectValue
-                      placeholder={language === "hu" ? "Nyelv" : "Language"}
-                    />
-                  </div>
-                </SelectTrigger>
-                <SelectContent className="bg-white/10 backdrop-blur-xl border-white/30 text-white">
-                  <SelectItem
-                    value="hu"
-                    className="hover:bg-white/20 focus:bg-white/20 cursor-pointer"
-                  >
-                    🇭🇺 Magyar
-                  </SelectItem>
-                  <SelectItem
-                    value="en"
-                    className="hover:bg-white/20 focus:bg-white/20 cursor-pointer"
-                  >
-                    🇺🇸 English
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            {!user && (
+              <div className="relative">
+                <Select value={language} onValueChange={setLanguage}>
+                  <SelectTrigger className="w-[120px] bg-white/10 border-white/30 text-white/90 hover:bg-white/20 transition-all duration-300 backdrop-blur-sm focus:border-primary/60">
+                    <div className="flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-white/70" />
+                      <SelectValue
+                        placeholder={language === "hu" ? "Nyelv" : "Language"}
+                      />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent className="bg-white/10 backdrop-blur-xl border-white/30 text-white">
+                    <SelectItem
+                      value="hu"
+                      className="hover:bg-white/20 focus:bg-white/20 cursor-pointer"
+                    >
+                      🇭🇺 Magyar
+                    </SelectItem>
+                    <SelectItem
+                      value="en"
+                      className="hover:bg-white/20 focus:bg-white/20 cursor-pointer"
+                    >
+                      🇺🇸 English
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Home Link */}
 
             {/* Profile Button (if user is logged in) */}
             {user && (
@@ -105,21 +109,25 @@ function Header() {
               </Link>
             )}
 
-            {/* Theme Toggle */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleTheme}
-              className="bg-white/10 border border-white/30 text-white/90 hover:bg-white/20 hover:border-accent/40 transition-all duration-300 backdrop-blur-sm group"
-            >
-              <div className="relative">
-                {theme === "light" ? (
-                  <Moon className="h-5 w-5 transition-all duration-300 group-hover:rotate-12" />
-                ) : (
-                  <Sun className="h-5 w-5 transition-all duration-300 group-hover:rotate-180" />
-                )}
-              </div>
-            </Button>
+            {!user && (
+              // Theme Toggle
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleTheme}
+                className="bg-white/10 border border-white/30 text-white/90 hover:bg-white/20 hover:border-accent/40 transition-all duration-300 backdrop-blur-sm group"
+              >
+                <div className="relative">
+                  {theme === "light" ? (
+                    <Moon className="h-5 w-5 transition-all duration-300 group-hover:rotate-12" />
+                  ) : (
+                    <Sun className="h-5 w-5 transition-all duration-300 group-hover:rotate-180" />
+                  )}
+                </div>
+              </Button>
+            )}
+
+            {/* Auth Button (if user is not logged in) */}
 
             {/* Auth Button */}
             <div className="relative">

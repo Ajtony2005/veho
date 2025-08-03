@@ -4,7 +4,6 @@ import { useAuth } from "../hooks/useAuth";
 import { languageAtom } from "../store/languageAtom";
 import { userAtom } from "../store/userAtom";
 import { useUserRepository } from "../repository/UserRepository";
-import Footer from "../components/Footer";
 import {
   Card,
   CardContent,
@@ -44,6 +43,16 @@ import {
   Crown,
   Award,
   Activity,
+  BookOpen,
+  Heart,
+  MessageCircle,
+  Share2,
+  ExternalLink,
+  Eye,
+  Star,
+  TrendingUp,
+  Users,
+  Zap,
 } from "lucide-react";
 import { FaGoogle } from "react-icons/fa";
 import {
@@ -59,145 +68,181 @@ import {
 import { auth } from "../lib/firebase";
 import { User as UserType } from "../Data/User";
 
-// Enhanced texts with more modern features
 const texts = {
   hu: {
     title: "Profil",
-    subtitle: "Kezeld a fiókod és személyes adataid",
+    subtitle: "Nyilvános profil és személyes információk",
     personalInfo: "Személyes Információk",
-    accountSettings: "Fiók Beállítások",
+    aboutMe: "Rólam",
+    myIdeas: "Ötleteim",
+    activity: "Aktivitás",
+    stats: "Statisztikák",
+    socialLinks: "Közösségi média",
     linkedAccounts: "Összekapcsolt Fiókok",
-    securitySettings: "Biztonsági Beállítások",
-    quickActions: "Gyors Műveletek",
-    email: "Email",
-    displayName: "Megjelenítendő Név",
+    achievements: "Eredmények",
+
+    // Profile fields
+    displayName: "Megjelenítendő név",
     bio: "Bemutatkozás",
-    timezone: "Időzóna",
-    language: "Nyelv",
-    role: "Szerep",
-    createdAt: "Regisztráció dátuma",
-    lastLoginAt: "Utolsó bejelentkezés",
-    ideasCount: "Ötletek száma",
-    socialLinks: "Közösségi média linkek",
-    providers: "Bejelentkezési módszerek",
+    email: "Email cím",
+    location: "Helyszín",
+    website: "Weboldal",
+    joinedDate: "Csatlakozás dátuma",
+    lastSeen: "Utoljára online",
+
+    // Actions
     editProfile: "Profil szerkesztése",
     saveChanges: "Változtatások mentése",
     cancel: "Mégse",
-    notSignedIn: "Kérjük, jelentkezz be a profil megtekintéséhez.",
-    signIn: "Bejelentkezés",
-    signOut: "Kijelentkezés",
-    linkAccount: "Új fiók összekapcsolása",
-    unlinkAccount: "Összekapcsolás megszüntetése",
-    linkProvider: "Összekapcsolás",
-    linked: "Összekapcsolva",
-    unlink: "Leválasztás",
-    linkedSuccessfully: "Fiók sikeresen összekapcsolva!",
-    unlinkedSuccessfully: "Összekapcsolás sikeresen megszüntetve!",
+    message: "Üzenet küldése",
+    follow: "Követés",
+    unfollow: "Követés megszüntetése",
+    share: "Profil megosztása",
+    settings: "Beállítások",
+
+    // Stats
+    totalIdeas: "Összes ötlet",
+    totalLikes: "Összes kedvelés",
+    totalViews: "Összes megtekintés",
+    memberSince: "Tag ettől",
+    activedays: "Aktív napok",
+    contributions: "Hozzájárulások",
+
+    // Tabs
+    ideas: "Ötletek",
+    about: "Névjegy",
+
+    // Status
+    online: "Online",
+    offline: "Offline",
+    active: "Aktív",
+    inactive: "Inaktív",
+    verified: "Megerősített",
+
+    // Ideas section
+    noIdeas: "Még nincsenek közzétett ötletek",
+    createFirstIdea: "Hozd létre az első ötletedet",
+    viewAllIdeas: "Összes ötlet megtekintése",
+    recentIdeas: "Legutóbbi ötletek",
+    popularIdeas: "Népszerű ötletek",
+
+    // Social
+    github: "GitHub",
+    linkedin: "LinkedIn",
+    twitter: "Twitter",
+    facebook: "Facebook",
+
+    // Messages
     profileUpdated: "Profil sikeresen frissítve!",
-    status: {
-      active: "Aktív",
-      inactive: "Inaktív",
-      verified: "Megerősített",
-      unverified: "Nem megerősített",
-    },
-    roles: {
-      user: "Felhasználó",
-      admin: "Adminisztrátor",
-      moderator: "Moderátor",
-    },
-    stats: {
-      memberSince: "Tag ekkor óta",
-      totalIdeas: "Összes ötlet",
-      lastActive: "Utoljára aktív",
-      accountStatus: "Fiók állapota",
-    },
-    errors: {
-      linkingFailed: "Fiók összekapcsolása sikertelen.",
-      unlinkingFailed: "Összekapcsolás megszüntetése sikertelen.",
-      updateFailed: "Profil frissítés sikertelen.",
-      signOutFailed: "Kijelentkezés sikertelen.",
-    },
+    updateFailed: "Profil frissítés sikertelen.",
+    signOutFailed: "Kijelentkezés sikertelen.",
+
+    // Placeholders
     placeholders: {
       displayName: "Add meg a neved...",
-      bio: "Írj magadról, érdeklődési köröd, tapasztalataid...",
-      github: "GitHub felhasználónév",
-      linkedin: "LinkedIn profil URL",
-      twitter: "Twitter felhasználónév",
-      facebook: "Facebook profil URL",
+      bio: "Mesélj magadról, érdeklődési köreidről, tapasztalataidról...",
+      location: "Város, Ország",
+      website: "https://példa.hu",
+      github: "felhasználónév",
+      linkedin: "https://linkedin.com/in/felhasználónév",
+      twitter: "@felhasználónév",
+      facebook: "https://facebook.com/felhasználónév",
     },
+
     confirmations: {
-      unlinkProvider:
-        "Biztosan le szeretnéd választani ezt a bejelentkezési módot?",
       signOut: "Biztosan ki szeretnél jelentkezni?",
+    },
+
+    errors: {
+      notSignedIn: "Kérjük, jelentkezz be a profil megtekintéséhez.",
     },
   },
   en: {
     title: "Profile",
-    subtitle: "Manage your account and personal information",
+    subtitle: "Public profile and personal information",
     personalInfo: "Personal Information",
-    accountSettings: "Account Settings",
+    aboutMe: "About Me",
+    myIdeas: "My Ideas",
+    activity: "Activity",
+    stats: "Statistics",
+    socialLinks: "Social Media",
     linkedAccounts: "Linked Accounts",
-    securitySettings: "Security Settings",
-    quickActions: "Quick Actions",
-    email: "Email",
-    displayName: "Display Name",
+    achievements: "Achievements",
+
+    // Profile fields
+    displayName: "Display name",
     bio: "Bio",
-    timezone: "Timezone",
-    language: "Language",
-    role: "Role",
-    createdAt: "Registration Date",
-    lastLoginAt: "Last Login",
-    ideasCount: "Ideas Count",
-    socialLinks: "Social Media Links",
-    providers: "Sign-in Methods",
+    email: "Email address",
+    location: "Location",
+    website: "Website",
+    joinedDate: "Joined date",
+    lastSeen: "Last seen",
+
+    // Actions
     editProfile: "Edit Profile",
     saveChanges: "Save Changes",
     cancel: "Cancel",
-    notSignedIn: "Please sign in to view your profile.",
-    signIn: "Sign In",
-    signOut: "Sign Out",
-    linkAccount: "Link New Account",
-    unlinkAccount: "Unlink Account",
-    linkProvider: "Link",
-    linked: "Linked",
-    unlink: "Unlink",
-    linkedSuccessfully: "Account linked successfully!",
-    unlinkedSuccessfully: "Account unlinked successfully!",
+    message: "Send Message",
+    follow: "Follow",
+    unfollow: "Unfollow",
+    share: "Share Profile",
+    settings: "Settings",
+
+    // Stats
+    totalIdeas: "Total Ideas",
+    totalLikes: "Total Likes",
+    totalViews: "Total Views",
+    memberSince: "Member since",
+    activedays: "Active days",
+    contributions: "Contributions",
+
+    // Tabs
+    ideas: "Ideas",
+    about: "About",
+
+    // Status
+    online: "Online",
+    offline: "Offline",
+    active: "Active",
+    inactive: "Inactive",
+    verified: "Verified",
+
+    // Ideas section
+    noIdeas: "No ideas published yet",
+    createFirstIdea: "Create your first idea",
+    viewAllIdeas: "View all ideas",
+    recentIdeas: "Recent ideas",
+    popularIdeas: "Popular ideas",
+
+    // Social
+    github: "GitHub",
+    linkedin: "LinkedIn",
+    twitter: "Twitter",
+    facebook: "Facebook",
+
+    // Messages
     profileUpdated: "Profile updated successfully!",
-    status: {
-      active: "Active",
-      inactive: "Inactive",
-      verified: "Verified",
-      unverified: "Unverified",
-    },
-    roles: {
-      user: "User",
-      admin: "Administrator",
-      moderator: "Moderator",
-    },
-    stats: {
-      memberSince: "Member since",
-      totalIdeas: "Total ideas",
-      lastActive: "Last active",
-      accountStatus: "Account status",
-    },
-    errors: {
-      linkingFailed: "Failed to link account.",
-      unlinkingFailed: "Failed to unlink account.",
-      updateFailed: "Failed to update profile.",
-      signOutFailed: "Failed to sign out.",
-    },
+    updateFailed: "Failed to update profile.",
+    signOutFailed: "Failed to sign out.",
+
+    // Placeholders
     placeholders: {
       displayName: "Enter your name...",
       bio: "Tell us about yourself, your interests, experiences...",
-      github: "GitHub username",
-      linkedin: "LinkedIn profile URL",
-      twitter: "Twitter username",
-      facebook: "Facebook profile URL",
+      location: "City, Country",
+      website: "https://example.com",
+      github: "username",
+      linkedin: "https://linkedin.com/in/username",
+      twitter: "@username",
+      facebook: "https://facebook.com/username",
     },
+
     confirmations: {
-      unlinkProvider: "Are you sure you want to unlink this sign-in method?",
       signOut: "Are you sure you want to sign out?",
+    },
+
+    errors: {
+      notSignedIn: "Please sign in to view your profile.",
     },
   },
 };
@@ -209,8 +254,7 @@ function Profile() {
   const {
     updateUserProfile,
     getUserDataFromFirestore,
-    canLinkProvider,
-    linkCredentialToCurrentUser,
+    updateUserDataInFirestore,
   } = useUserRepository();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -218,11 +262,14 @@ function Profile() {
   const [firestoreUser, setFirestoreUser] = useState<UserType | null>(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [activeTab, setActiveTab] = useState<"about" | "ideas">("about");
 
-  // Form states
+  // Form state for profile editing
   const [formData, setFormData] = useState({
     displayName: "",
     bio: "",
+    location: "",
+    website: "",
     socialLinks: {
       github: "",
       linkedin: "",
@@ -234,7 +281,8 @@ function Profile() {
   // Load user data from Firestore
   useEffect(() => {
     const loadUserData = async () => {
-      if (firebaseUser?.uid) {
+      if (firebaseUser?.uid && !isEditing) {
+        // Only load if not editing
         try {
           const userData = await getUserDataFromFirestore(firebaseUser.uid);
           if (userData) {
@@ -242,6 +290,8 @@ function Profile() {
             setFormData({
               displayName: userData.displayName || "",
               bio: userData.bio || "",
+              location: userData.location || "",
+              website: userData.website || "",
               socialLinks: {
                 github: userData.socialLinks?.github || "",
                 linkedin: userData.socialLinks?.linkedin || "",
@@ -257,7 +307,7 @@ function Profile() {
     };
 
     loadUserData();
-  }, [firebaseUser, getUserDataFromFirestore]);
+  }, [firebaseUser?.uid, getUserDataFromFirestore, isEditing]); // Add isEditing to dependencies
 
   // Auto-hide messages after 5 seconds
   useEffect(() => {
@@ -302,6 +352,12 @@ function Profile() {
         socialLinks: formData.socialLinks,
       });
 
+      // Update additional profile fields
+      await updateUserDataInFirestore({
+        location: formData.location,
+        website: formData.website,
+      });
+
       // Reload user data
       const updatedUserData = await getUserDataFromFirestore(firebaseUser.uid);
       if (updatedUserData) {
@@ -309,352 +365,60 @@ function Profile() {
       }
 
       setSuccessMessage(texts[language].profileUpdated);
-      setIsEditing(false);
+      setIsEditing(false); // This will trigger the data reload
     } catch (error: any) {
-      setErrorMessage(texts[language].errors.updateFailed);
+      setErrorMessage(texts[language].updateFailed);
       console.error("Profile update error:", error);
     } finally {
       setIsLoading(false);
     }
   };
-
-  const handleLinkProvider = async (provider: string) => {
-    if (!canLinkProvider(provider)) return;
-
-    setIsLoading(true);
-    setErrorMessage("");
-    setSuccessMessage("");
-
-    try {
-      let authProvider;
-      switch (provider) {
-        case "google":
-          authProvider = new GoogleAuthProvider();
-          authProvider.addScope("profile");
-          authProvider.addScope("email");
-          break;
-        case "facebook":
-          authProvider = new FacebookAuthProvider();
-          authProvider.addScope("email");
-          authProvider.addScope("public_profile");
-          break;
-        case "github":
-          authProvider = new GithubAuthProvider();
-          authProvider.addScope("user:email");
-          authProvider.addScope("read:user");
-          break;
-        default:
-          throw new Error("Invalid provider");
-      }
-
-      try {
-        // First, try normal popup sign-in
-        const result = await signInWithPopup(auth, authProvider);
-
-        if (result.credential) {
-          // If successful, link the credential directly
-          await linkCredentialToCurrentUser(result.credential, provider);
-
-          // Reload user data
-          const updatedUserData = await getUserDataFromFirestore(
-            firebaseUser!.uid
-          );
-          if (updatedUserData) {
-            setFirestoreUser(updatedUserData);
-          }
-
-          setSuccessMessage(texts[language].linkedSuccessfully);
-        }
-      } catch (popupError: any) {
-        console.log("Popup error:", popupError);
-        console.log("Error code:", popupError.code);
-        console.log("Error message:", popupError.message);
-
-        if (
-          popupError.code === "auth/account-exists-with-different-credential"
-        ) {
-          // Handle the credential conflict
-          await handleCredentialConflict(popupError, provider);
-        } else if (popupError.code === "auth/popup-closed-by-user") {
-          // User closed the popup, don't show an error
-          console.log("User closed the popup");
-          return;
-        } else if (popupError.code === "auth/popup-blocked") {
-          setErrorMessage(
-            language === "hu"
-              ? "A felugró ablak blokkolva van. Kérjük engedélyezd a felugró ablakokat."
-              : "Popup blocked. Please allow popups for this site."
-          );
-        } else if (popupError.code === "auth/cancelled-popup-request") {
-          // Another popup was already open, don't show error
-          console.log("Another popup was already open");
-          return;
-        } else {
-          throw popupError; // Re-throw other errors
-        }
-      }
-    } catch (error: any) {
-      console.error("Provider linking error:", error);
-      console.log("Error code:", error.code);
-      console.log("Error message:", error.message);
-
-      if (error.code === "auth/credential-already-in-use") {
-        setErrorMessage(
-          language === "hu"
-            ? "Ez a fiók már másik felhasználóhoz van rendelve."
-            : "This account is already linked to another user."
-        );
-      } else if (
-        error.code === "auth/account-exists-with-different-credential"
-      ) {
-        setErrorMessage(
-          language === "hu"
-            ? "Ez az email cím már más bejelentkezési módszerrel van használatban. A fiókokat nem lehet automatikusan összekapcsolni biztonsági okokból."
-            : "This email is already in use with a different sign-in method. Accounts cannot be automatically linked for security reasons."
-        );
-      } else if (error.code === "auth/provider-already-linked") {
-        setErrorMessage(
-          language === "hu"
-            ? "Ez a bejelentkezési módszer már össze van kapcsolva a fiókoddal."
-            : "This sign-in method is already linked to your account."
-        );
-      } else if (error.code === "auth/popup-blocked") {
-        setErrorMessage(
-          language === "hu"
-            ? "A felugró ablak blokkolva van. Kérjük engedélyezd a felugró ablakokat."
-            : "Popup blocked. Please allow popups for this site."
-        );
-      } else if (error.code === "auth/popup-closed-by-user") {
-        // Don't show error for user-closed popup
-        return;
-      } else if (error.code === "auth/network-request-failed") {
-        setErrorMessage(
-          language === "hu"
-            ? "Hálózati hiba történt. Kérjük ellenőrizd az internetkapcsolatod."
-            : "Network error occurred. Please check your internet connection."
-        );
-      } else if (error.code === "auth/too-many-requests") {
-        setErrorMessage(
-          language === "hu"
-            ? "Túl sok kérés érkezett. Kérjük próbáld újra később."
-            : "Too many requests. Please try again later."
-        );
-      } else {
-        // Generic error message for unknown errors
-        setErrorMessage(
-          language === "hu"
-            ? `Fiók összekapcsolása sikertelen: ${
-                error.message || "Ismeretlen hiba"
-              }`
-            : `Failed to link account: ${error.message || "Unknown error"}`
-        );
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  const handleCredentialConflict = async (error: any, newProvider: string) => {
-    try {
-      console.log("Handling credential conflict for:", newProvider);
-      console.log("Full error object:", error);
-
-      // Get the email from the error - try multiple sources
-      const conflictEmail =
-        error.customData?.email ||
-        error.email ||
-        error._tokenResponse?.email ||
-        error.credential?.email;
-
-      if (!conflictEmail) {
-        console.warn(
-          "No email found in conflict error, showing generic message"
-        );
-        setErrorMessage(
-          language === "hu"
-            ? "Fiók konfliktus történt. Ez az email cím már használatban van más bejelentkezési módszerrel. Kérjük próbáld meg a másik bejelentkezési módot."
-            : "Account conflict occurred. This email is already in use with a different sign-in method. Please try the other sign-in method."
-        );
-        return;
-      }
-
-      console.log("Conflict email:", conflictEmail);
-
-      // Check what sign-in methods exist for this email
-      let existingMethods: string[] = [];
-
-      try {
-        existingMethods = await fetchSignInMethodsForEmail(auth, conflictEmail);
-        console.log("Existing methods for email:", existingMethods);
-      } catch (fetchError: any) {
-        console.error("Error fetching sign-in methods:", fetchError);
-
-        // If we can't fetch methods, show a generic helpful message
-        setErrorMessage(
-          language === "hu"
-            ? `Ez az email cím (${conflictEmail}) már használatban van más bejelentkezési módszerrel. Próbáld meg bejelentkezni Google, Facebook vagy GitHub fiókkal.`
-            : `This email (${conflictEmail}) is already in use with a different sign-in method. Try signing in with Google, Facebook, or GitHub.`
-        );
-        return;
-      }
-
-      // Handle the case where no methods are found (this shouldn't happen but can occur)
-      if (!existingMethods || existingMethods.length === 0) {
-        console.warn(
-          "No existing sign-in methods found for email:",
-          conflictEmail
-        );
-
-        // Check if the user is already signed in with this email
-        if (firebaseUser?.email === conflictEmail) {
-          setErrorMessage(
-            language === "hu"
-              ? `Te már be vagy jelentkezve ezzel az email címmel (${conflictEmail}). A ${newProvider} fiók nem kapcsolható össze, mert ugyanaz az email cím van használatban. Próbáld meg kijelentkezni, majd bejelentkezni a ${newProvider} fiókkal.`
-              : `You are already signed in with this email (${conflictEmail}). The ${newProvider} account cannot be linked because the same email is in use. Try signing out, then signing in with your ${newProvider} account.`
-          );
-        } else {
-          // Show a more helpful message suggesting common providers
-          setErrorMessage(
-            language === "hu"
-              ? `Ez az email cím (${conflictEmail}) már regisztrálva van, de nem sikerült meghatározni a bejelentkezési módot. Próbáld meg bejelentkezni Google, Facebook vagy GitHub fiókkal, vagy használj másik email címet.`
-              : `This email (${conflictEmail}) is already registered, but we couldn't determine the sign-in method. Try signing in with Google, Facebook, or GitHub, or use a different email address.`
-          );
-        }
-        return;
-      }
-
-      // Convert provider IDs to user-friendly names
-      const providerNames = existingMethods.map((method) => {
-        switch (method) {
-          case "google.com":
-            return "Google";
-          case "facebook.com":
-            return "Facebook";
-          case "github.com":
-            return "GitHub";
-          case "password":
-            return language === "hu" ? "Email/jelszó" : "Email/Password";
-          case "apple.com":
-            return "Apple";
-          case "microsoft.com":
-            return "Microsoft";
-          case "twitter.com":
-            return "Twitter";
-          default:
-            // Handle any unknown providers gracefully
-            return (
-              method.replace(".com", "").charAt(0).toUpperCase() +
-              method.replace(".com", "").slice(1)
-            );
-        }
+  const handleCancelEdit = () => {
+    if (firestoreUser) {
+      // Reset form data to original values
+      setFormData({
+        displayName: firestoreUser.displayName || "",
+        bio: firestoreUser.bio || "",
+        location: firestoreUser.location || "",
+        website: firestoreUser.website || "",
+        socialLinks: {
+          github: firestoreUser.socialLinks?.github || "",
+          linkedin: firestoreUser.socialLinks?.linkedin || "",
+          twitter: firestoreUser.socialLinks?.twitter || "",
+          facebook: firestoreUser.socialLinks?.facebook || "",
+        },
       });
-
-      const existingMethodsText = providerNames.join(", ");
-
-      setErrorMessage(
-        language === "hu"
-          ? `Ez az email cím (${conflictEmail}) már használatban van a következő módszerrel: ${existingMethodsText}. Biztonsági okokból a fiókokat nem lehet automatikusan összekapcsolni. Kérjük, jelentkezz be előbb a meglévő módszerrel, majd próbáld meg újra az összekapcsolást.`
-          : `This email (${conflictEmail}) is already in use with: ${existingMethodsText}. For security reasons, accounts cannot be automatically linked. Please sign in with your existing method first, then try linking again.`
-      );
-    } catch (conflictError: any) {
-      console.error("Error handling credential conflict:", conflictError);
-
-      // Provide a helpful fallback error message
-      setErrorMessage(
-        language === "hu"
-          ? "Fiók konfliktus történt. Ez az email cím már használatban van. Próbáld meg bejelentkezni a már meglévő fiókkal (Google, Facebook, vagy GitHub), majd próbáld meg újra az összekapcsolást."
-          : "Account conflict occurred. This email is already in use. Try signing in with your existing account (Google, Facebook, or GitHub), then try linking again."
-      );
     }
+    setIsEditing(false);
   };
-
   const handleSignOut = async () => {
     if (window.confirm(texts[language].confirmations.signOut)) {
       try {
         await signOut(auth);
         setUser(null);
       } catch (error: any) {
-        setErrorMessage(texts[language].errors.signOutFailed);
+        setErrorMessage(texts[language].signOutFailed);
       }
     }
   };
-
-  const handleUnlinkProvider = async (provider: string) => {
-    if (!firebaseUser || !firestoreUser?.providers) return;
-
-    // Prevent unlinking if it's the only provider
-    if (firestoreUser.providers.length <= 1) {
-      setErrorMessage(
-        language === "hu"
-          ? "Nem lehet leválasztani az egyetlen bejelentkezési módot."
-          : "Cannot unlink the only sign-in method."
-      );
-      return;
-    }
-
-    if (!window.confirm(texts[language].confirmations.unlinkProvider)) {
-      return;
-    }
-
-    setIsLoading(true);
-    setErrorMessage("");
-    setSuccessMessage("");
-
-    try {
-      // Get the provider ID for Firebase
-      let providerId;
-      switch (provider) {
-        case "google":
-          providerId = "google.com";
-          break;
-        case "facebook":
-          providerId = "facebook.com";
-          break;
-        case "github":
-          providerId = "github.com";
-          break;
-        default:
-          throw new Error("Invalid provider");
-      }
-
-      // Unlink from Firebase Auth
-      await firebaseUser.unlink(providerId);
-
-      // Update Firestore - remove provider from arrays
-      const updatedProviders = firestoreUser.providers.filter(
-        (p) => p !== provider
-      );
-
-      // Remove from linkedAccounts
-      const updatedLinkedAccounts = { ...firestoreUser.linkedAccounts };
-      delete updatedLinkedAccounts[
-        provider as keyof typeof updatedLinkedAccounts
-      ];
-
-      // Get the repository instance
-      const { updateUserDataInFirestore } = useUserRepository();
-
-      // Update Firestore data
-      await updateUserDataInFirestore({
-        providers: updatedProviders,
-        linkedAccounts: updatedLinkedAccounts,
-        updatedAt: new Date().toISOString(),
+  useEffect(() => {
+    if (isEditing && firestoreUser) {
+      setFormData({
+        displayName: firestoreUser.displayName || "",
+        bio: firestoreUser.bio || "",
+        location: firestoreUser.location || "",
+        website: firestoreUser.website || "",
+        socialLinks: {
+          github: firestoreUser.socialLinks?.github || "",
+          linkedin: firestoreUser.socialLinks?.linkedin || "",
+          twitter: firestoreUser.socialLinks?.twitter || "",
+          facebook: firestoreUser.socialLinks?.facebook || "",
+        },
       });
-
-      // Reload user data
-      const updatedUserData = await getUserDataFromFirestore(firebaseUser.uid);
-      if (updatedUserData) {
-        setFirestoreUser(updatedUserData);
-      }
-
-      setSuccessMessage(texts[language].unlinkedSuccessfully);
-    } catch (error: any) {
-      console.error("Provider unlinking error:", error);
-      setErrorMessage(texts[language].errors.unlinkingFailed);
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [isEditing, firestoreUser]);
 
+  // Utility functions
   const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString(
@@ -687,33 +451,18 @@ function Profile() {
     return language === "hu" ? `${diffYears} éve` : `${diffYears} years ago`;
   };
 
-  const getProviderIcon = (provider: string) => {
-    switch (provider) {
-      case "google":
-        return <FaGoogle className="w-4 h-4 text-red-500" />;
-      case "facebook":
-        return <Facebook className="w-4 h-4 text-blue-600" />;
+  const getSocialIcon = (platform: string) => {
+    switch (platform) {
       case "github":
-        return <Github className="w-4 h-4 text-gray-800 dark:text-gray-200" />;
-      case "email":
-        return <Mail className="w-4 h-4 text-gray-600" />;
-      default:
-        return <User className="w-4 h-4" />;
-    }
-  };
-
-  const getProviderName = (provider: string) => {
-    switch (provider) {
-      case "google":
-        return "Google";
+        return <Github className="w-4 h-4" />;
+      case "linkedin":
+        return <Linkedin className="w-4 h-4" />;
+      case "twitter":
+        return <Twitter className="w-4 h-4" />;
       case "facebook":
-        return "Facebook";
-      case "github":
-        return "GitHub";
-      case "email":
-        return "Email";
+        return <Facebook className="w-4 h-4" />;
       default:
-        return provider.charAt(0).toUpperCase() + provider.slice(1);
+        return <ExternalLink className="w-4 h-4" />;
     }
   };
 
@@ -721,82 +470,51 @@ function Profile() {
     switch (role) {
       case "admin":
         return (
-          <Badge className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+          <Badge className="glass bg-gradient-to-r from-purple-500/20 to-purple-600/20 text-purple-200 border-purple-500/30">
             <Crown className="w-3 h-3 mr-1" />
-            {texts[language].roles.admin}
+            Admin
           </Badge>
         );
       case "moderator":
         return (
-          <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+          <Badge className="glass bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-blue-200 border-blue-500/30">
             <Shield className="w-3 h-3 mr-1" />
-            {texts[language].roles.moderator}
+            Moderator
           </Badge>
         );
       default:
         return (
-          <Badge
-            variant="secondary"
-            className="bg-white/50 dark:bg-slate-700/50"
-          >
+          <Badge className="glass bg-gradient-to-r from-gray-500/20 to-gray-600/20 text-gray-200 border-gray-500/30">
             <User className="w-3 h-3 mr-1" />
-            {texts[language].roles.user}
+            User
           </Badge>
         );
     }
   };
 
-  const getStatusBadge = (isActive?: boolean) => {
-    return isActive ? (
-      <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white">
-        <Check className="w-3 h-3 mr-1" />
-        {texts[language].status.active}
-      </Badge>
-    ) : (
-      <Badge variant="destructive">
-        <AlertTriangle className="w-3 h-3 mr-1" />
-        {texts[language].status.inactive}
-      </Badge>
-    );
-  };
-
   if (!firebaseUser) {
     return (
       <div className="min-h-screen relative">
-        {/* Animated background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse animation-delay-0"></div>
-            <div className="absolute top-3/4 right-1/4 w-64 h-64 bg-accent/10 rounded-full blur-3xl animate-pulse animation-delay-1000"></div>
-            <div className="absolute bottom-1/4 left-1/3 w-64 h-64 bg-secondary/10 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
-          </div>
-        </div>
-
         <main className="relative container mx-auto px-4 py-12">
           <div className="max-w-md mx-auto">
-            <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/20 shadow-2xl">
+            <Card className="glass">
               <CardHeader className="text-center">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-primary/80 to-primary-600/80 rounded-full mb-4 mx-auto shadow-lg backdrop-blur-sm">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-primary/20 to-primary-600/20 rounded-full mb-4 mx-auto border border-primary/30">
                   <User className="w-10 h-10 text-white" />
                 </div>
-                <CardTitle className="text-3xl font-bold text-slate-800 dark:text-white mb-2">
+                <CardTitle className="text-3xl font-bold text-white mb-2">
                   {texts[language].title}
                 </CardTitle>
-                <p className="text-slate-600 dark:text-slate-300">
-                  {texts[language].subtitle}
-                </p>
+                <p className="text-white/70">{texts[language].subtitle}</p>
               </CardHeader>
               <CardContent className="text-center">
-                <p className="text-slate-600 dark:text-slate-300 mb-6">
-                  {texts[language].notSignedIn}
+                <p className="text-white/60 mb-6">
+                  {texts[language].errors.notSignedIn}
                 </p>
-                <Button
-                  asChild
-                  className="bg-gradient-to-r from-primary/80 to-primary-600/80 hover:from-primary-600/90 hover:to-primary-700/90 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl backdrop-blur-sm"
-                >
+                <Button asChild className="btn-primary w-full">
                   <Link to="/login">
                     <User className="w-4 h-4 mr-2" />
-                    {texts[language].signIn}
+                    Sign In
                   </Link>
                 </Button>
               </CardContent>
@@ -810,19 +528,17 @@ function Profile() {
 
   return (
     <div className="min-h-screen relative">
-      {/* Animated background */}
-
       <main className="relative container mx-auto px-4 py-12">
-        <div className="max-w-7xl mx-auto space-y-8">
-          {/* Enhanced Header */}
+        <div className="max-w-6xl mx-auto space-y-8">
+          {/* Header with title */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-4">
               <Sparkles className="w-8 h-8 text-primary mr-3" />
-              <h1 className="text-5xl font-bold text-slate-800 dark:text-white">
+              <h1 className="text-5xl font-bold text-white">
                 {texts[language].title}
               </h1>
             </div>
-            <p className="text-xl text-slate-600 dark:text-slate-300 mb-4">
+            <p className="text-xl text-white/70 mb-4">
               {texts[language].subtitle}
             </p>
             <div className="w-32 h-1 bg-gradient-to-r from-primary via-primary-600 to-primary-700 mx-auto rounded-full"></div>
@@ -830,13 +546,13 @@ function Profile() {
 
           {/* Success/Error Messages */}
           {(successMessage || errorMessage) && (
-            <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/20 shadow-lg">
+            <Card className="glass">
               <CardContent className="p-4">
                 <div
                   className={`p-4 rounded-xl border-2 transition-all duration-300 ${
                     errorMessage
-                      ? "bg-red-50/80 border-red-200 text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-200"
-                      : "bg-green-50/80 border-green-200 text-green-700 dark:bg-green-900/20 dark:border-green-800 dark:text-green-200"
+                      ? "bg-red-500/10 border-red-500/30 text-red-200"
+                      : "bg-green-500/10 border-green-500/30 text-green-200"
                   }`}
                 >
                   <div className="flex items-center justify-center gap-2">
@@ -855,50 +571,96 @@ function Profile() {
           )}
 
           {/* Profile Header Card */}
-          <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/20 shadow-2xl">
+          <Card className="glass">
             <CardContent className="p-8">
-              <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="flex flex-col lg:flex-row items-center gap-8">
+                {/* Profile Picture */}
                 <div className="relative">
                   <img
                     src={
                       firebaseUser.photoURL ||
                       `https://ui-avatars.com/api/?name=${encodeURIComponent(
                         firebaseUser.displayName || "User"
-                      )}&background=6366f1&color=fff&size=120`
+                      )}&background=6366f1&color=fff&size=160`
                     }
                     alt="Profile"
-                    className="w-24 h-24 md:w-32 md:h-32 rounded-full border-4 border-white/30 shadow-xl"
+                    className="w-32 h-32 lg:w-40 lg:h-40 rounded-full border-4 border-white/30 shadow-xl"
                   />
-                  <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white shadow-lg"></div>
+                  <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-green-500 rounded-full border-4 border-white shadow-lg flex items-center justify-center">
+                    <div className="w-3 h-3 bg-white rounded-full"></div>
+                  </div>
+                  {isEditing && (
+                    <Button
+                      size="sm"
+                      className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 btn-secondary"
+                    >
+                      <Camera className="w-4 h-4" />
+                    </Button>
+                  )}
                 </div>
 
-                <div className="flex-1 text-center md:text-left">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                {/* Profile Info */}
+                <div className="flex-1 text-center lg:text-left">
+                  <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-6">
                     <div>
-                      <h2 className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white mb-2">
+                      <h2 className="text-3xl lg:text-4xl font-bold text-white mb-2">
                         {firebaseUser.displayName || "User"}
                       </h2>
-                      <p className="text-slate-600 dark:text-slate-300 mb-3">
-                        {firebaseUser.email}
+                      <p className="text-white/70 text-lg mb-3">
+                        {firestoreUser?.settings?.showEmail
+                          ? firebaseUser.email
+                          : "Email hidden"}
                       </p>
-                      <div className="flex flex-wrap justify-center md:justify-start gap-2">
+                      <div className="flex flex-wrap justify-center lg:justify-start gap-2 mb-4">
                         {getRoleBadge(firestoreUser?.role)}
-                        {getStatusBadge(firestoreUser?.isActive)}
-                        {firebaseUser.emailVerified && (
-                          <Badge className="bg-gradient-to-r from-green-500 to-green-600 text-white">
-                            <Check className="w-3 h-3 mr-1" />
-                            {texts[language].status.verified}
+                        <Badge className="glass bg-gradient-to-r from-green-500/20 to-green-600/20 text-green-200 border-green-500/30">
+                          <Check className="w-3 h-3 mr-1" />
+                          {texts[language].verified}
+                        </Badge>
+                        {firestoreUser?.settings?.showLastSeen && (
+                          <Badge className="glass bg-gradient-to-r from-blue-500/20 to-blue-600/20 text-blue-200 border-blue-500/30">
+                            <Clock className="w-3 h-3 mr-1" />
+                            {texts[language].online}
                           </Badge>
                         )}
                       </div>
+
+                      {/* Location and website */}
+                      <div className="flex flex-col lg:flex-row gap-4 text-white/60 text-sm">
+                        {firestoreUser?.location && (
+                          <div className="flex items-center gap-1">
+                            <MapPin className="w-4 h-4" />
+                            {firestoreUser.location}
+                          </div>
+                        )}
+                        {firestoreUser?.website && (
+                          <div className="flex items-center gap-1">
+                            <Globe className="w-4 h-4" />
+                            <a
+                              href={firestoreUser.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:text-primary-400 transition-colors"
+                            >
+                              {firestoreUser.website}
+                            </a>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1">
+                          <Calendar className="w-4 h-4" />
+                          {texts[language].memberSince}{" "}
+                          {formatDate(firestoreUser?.createdAt)}
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="flex gap-2 mt-4 md:mt-0">
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap gap-2 mt-4 lg:mt-0">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => setIsEditing(!isEditing)}
-                        className="bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm border-white/30"
+                        className="glass border-white/30 text-white hover:bg-white/20"
                       >
                         {isEditing ? (
                           <>
@@ -915,17 +677,29 @@ function Profile() {
                       <Button
                         variant="outline"
                         size="sm"
+                        asChild
+                        className="glass border-white/30 text-white hover:bg-white/20"
+                      >
+                        <Link to="/settings">
+                          <Settings className="w-4 h-4 mr-2" />
+                          {texts[language].settings}
+                        </Link>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={handleSignOut}
-                        className="bg-red-50/50 dark:bg-red-900/20 backdrop-blur-sm border-red-200/30 text-red-600 hover:bg-red-100/50"
+                        className="glass border-red-500/30 text-red-200 hover:bg-red-500/20"
                       >
                         <LogOut className="w-4 h-4 mr-2" />
-                        {texts[language].signOut}
+                        Sign Out
                       </Button>
                     </div>
                   </div>
 
+                  {/* Bio */}
                   {firestoreUser?.bio && (
-                    <p className="text-slate-600 dark:text-slate-300 text-sm md:text-base leading-relaxed">
+                    <p className="text-white/80 text-base leading-relaxed">
                       {firestoreUser.bio}
                     </p>
                   )}
@@ -934,310 +708,380 @@ function Profile() {
             </CardContent>
           </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Main Content */}
-            <div className="lg:col-span-3 space-y-8">
-              {/* Personal Information */}
-              <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/20 shadow-2xl">
-                <CardHeader>
-                  <CardTitle className="text-2xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
-                    <User className="w-6 h-6" />
-                    {texts[language].personalInfo}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Form Fields */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                      <Label className="text-slate-700 dark:text-slate-300 font-medium">
-                        {texts[language].displayName}
-                      </Label>
-                      {isEditing ? (
-                        <Input
-                          value={formData.displayName}
-                          onChange={(e) =>
-                            handleInputChange("displayName", e.target.value)
-                          }
-                          placeholder={texts[language].placeholders.displayName}
-                          className="bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm border-white/30 focus:border-primary/50"
-                        />
-                      ) : (
-                        <div className="text-slate-800 dark:text-white bg-white/30 dark:bg-slate-700/30 rounded-lg p-4 backdrop-blur-sm border border-white/20">
-                          {firestoreUser?.displayName || "Not set"}
-                        </div>
-                      )}
-                    </div>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card className="glass">
+              <CardContent className="p-6 text-center">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/20 rounded-lg mb-3">
+                  <BookOpen className="w-6 h-6 text-primary" />
+                </div>
+                <div className="text-2xl font-bold text-white mb-1">
+                  {firestoreUser?.ideasCount || 0}
+                </div>
+                <div className="text-white/60 text-sm">
+                  {texts[language].totalIdeas}
+                </div>
+              </CardContent>
+            </Card>
 
-                    <div className="space-y-2">
-                      <Label className="text-slate-700 dark:text-slate-300 font-medium">
-                        {texts[language].email}
-                      </Label>
-                      <div className="text-slate-800 dark:text-white bg-white/30 dark:bg-slate-700/30 rounded-lg p-4 backdrop-blur-sm border border-white/20 flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-slate-500" />
-                        {firebaseUser.email}
-                      </div>
-                    </div>
-                  </div>
+            <Card className="glass">
+              <CardContent className="p-6 text-center">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-secondary/20 rounded-lg mb-3">
+                  <Heart className="w-6 h-6 text-secondary" />
+                </div>
+                <div className="text-2xl font-bold text-white mb-1">
+                  {firestoreUser?.totalLikes || 0}
+                </div>
+                <div className="text-white/60 text-sm">
+                  {texts[language].totalLikes}
+                </div>
+              </CardContent>
+            </Card>
 
-                  <div className="space-y-2">
-                    <Label className="text-slate-700 dark:text-slate-300 font-medium">
-                      {texts[language].bio}
-                    </Label>
+            <Card className="glass">
+              <CardContent className="p-6 text-center">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-accent/20 rounded-lg mb-3">
+                  <Eye className="w-6 h-6 text-accent" />
+                </div>
+                <div className="text-2xl font-bold text-white mb-1">
+                  {firestoreUser?.totalViews || 0}
+                </div>
+                <div className="text-white/60 text-sm">
+                  {texts[language].totalViews}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="glass">
+              <CardContent className="p-6 text-center">
+                <div className="inline-flex items-center justify-center w-12 h-12 bg-yellow-500/20 rounded-lg mb-3">
+                  <Star className="w-6 h-6 text-yellow-500" />
+                </div>
+                <div className="text-2xl font-bold text-white mb-1">{0}</div>
+                <div className="text-white/60 text-sm">
+                  {texts[language].contributions}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Main Content */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Content Area */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Tab Navigation */}
+              <div className="flex gap-2">
+                <Button
+                  variant={activeTab === "about" ? "default" : "outline"}
+                  onClick={() => setActiveTab("about")}
+                  className={
+                    activeTab === "about"
+                      ? "btn-primary"
+                      : "glass border-white/30 text-white hover:bg-white/20"
+                  }
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  {texts[language].about}
+                </Button>
+                <Button
+                  variant={activeTab === "ideas" ? "default" : "outline"}
+                  onClick={() => setActiveTab("ideas")}
+                  className={
+                    activeTab === "ideas"
+                      ? "btn-primary"
+                      : "glass border-white/30 text-white hover:bg-white/20"
+                  }
+                >
+                  <BookOpen className="w-4 h-4 mr-2" />
+                  {texts[language].ideas}
+                </Button>
+              </div>
+
+              {/* Tab Content */}
+              {activeTab === "about" && (
+                <Card className="glass">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <User className="w-5 h-5" />
+                      {texts[language].aboutMe}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
                     {isEditing ? (
-                      <Textarea
-                        value={formData.bio}
-                        onChange={(e) =>
-                          handleInputChange("bio", e.target.value)
-                        }
-                        placeholder={texts[language].placeholders.bio}
-                        rows={4}
-                        className="bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm border-white/30 focus:border-primary/50 resize-none"
-                      />
-                    ) : (
-                      <div className="text-slate-800 dark:text-white bg-white/30 dark:bg-slate-700/30 rounded-lg p-4 backdrop-blur-sm border border-white/20 min-h-[100px] whitespace-pre-wrap">
-                        {firestoreUser?.bio || "No bio provided"}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Social Links */}
-                  <div className="space-y-4">
-                    <h4 className="text-lg font-semibold text-slate-800 dark:text-white flex items-center gap-2">
-                      <Globe className="w-5 h-5" />
-                      {texts[language].socialLinks}
-                    </h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {Object.entries(formData.socialLinks).map(
-                        ([platform, value]) => (
-                          <div key={platform} className="space-y-2">
-                            <Label className="text-slate-700 dark:text-slate-300 font-medium capitalize flex items-center gap-2">
-                              {platform === "github" && (
-                                <Github className="w-4 h-4" />
-                              )}
-                              {platform === "linkedin" && (
-                                <Linkedin className="w-4 h-4" />
-                              )}
-                              {platform === "twitter" && (
-                                <Twitter className="w-4 h-4" />
-                              )}
-                              {platform === "facebook" && (
-                                <Facebook className="w-4 h-4" />
-                              )}
-                              {platform}
+                      <div className="space-y-4">
+                        {/* Editable form fields */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label className="text-white/90">
+                              {texts[language].displayName}
                             </Label>
-                            {isEditing ? (
-                              <Input
-                                value={value}
-                                onChange={(e) =>
-                                  handleInputChange(
-                                    `socialLinks.${platform}`,
-                                    e.target.value
-                                  )
-                                }
-                                placeholder={
-                                  texts[language].placeholders[
-                                    platform as keyof (typeof texts)[typeof language]["placeholders"]
-                                  ]
-                                }
-                                className="bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm border-white/30 focus:border-primary/50"
-                              />
-                            ) : (
-                              <div className="text-slate-800 dark:text-white bg-white/30 dark:bg-slate-700/30 rounded-lg p-3 backdrop-blur-sm border border-white/20">
-                                {value || "Not set"}
-                              </div>
+                            <Input
+                              value={formData.displayName}
+                              onChange={(e) =>
+                                handleInputChange("displayName", e.target.value)
+                              }
+                              placeholder={
+                                texts[language].placeholders.displayName
+                              }
+                              className="glass border-white/30 text-white placeholder-white/50 focus:border-primary/50"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-white/90">
+                              {texts[language].location}
+                            </Label>
+                            <Input
+                              value={formData.location}
+                              onChange={(e) =>
+                                handleInputChange("location", e.target.value)
+                              }
+                              placeholder={
+                                texts[language].placeholders.location
+                              }
+                              className="glass border-white/30 text-white placeholder-white/50 focus:border-primary/50"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-white/90">
+                            {texts[language].website}
+                          </Label>
+                          <Input
+                            value={formData.website}
+                            onChange={(e) =>
+                              handleInputChange("website", e.target.value)
+                            }
+                            placeholder={texts[language].placeholders.website}
+                            className="glass border-white/30 text-white placeholder-white/50 focus:border-primary/50"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-white/90">
+                            {texts[language].bio}
+                          </Label>
+                          <Textarea
+                            value={formData.bio}
+                            onChange={(e) =>
+                              handleInputChange("bio", e.target.value)
+                            }
+                            placeholder={texts[language].placeholders.bio}
+                            rows={4}
+                            className="glass border-white/30 text-white placeholder-white/50 focus:border-primary/50 resize-none"
+                          />
+                        </div>
+
+                        {/* Social Links */}
+                        <div className="space-y-4">
+                          <Label className="text-white/90 text-lg font-semibold">
+                            {texts[language].socialLinks}
+                          </Label>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {Object.entries(formData.socialLinks).map(
+                              ([platform, value]) => (
+                                <div key={platform} className="space-y-2">
+                                  <Label className="text-white/90 capitalize flex items-center gap-2">
+                                    {getSocialIcon(platform)}
+                                    {
+                                      texts[language][
+                                        platform as keyof (typeof texts)[typeof language]
+                                      ]
+                                    }
+                                  </Label>
+                                  <Input
+                                    value={value}
+                                    onChange={(e) =>
+                                      handleInputChange(
+                                        `socialLinks.${platform}`,
+                                        e.target.value
+                                      )
+                                    }
+                                    placeholder={
+                                      texts[language].placeholders[
+                                        platform as keyof (typeof texts)[typeof language]["placeholders"]
+                                      ]
+                                    }
+                                    className="glass border-white/30 text-white placeholder-white/50 focus:border-primary/50"
+                                  />
+                                </div>
+                              )
                             )}
                           </div>
-                        )
-                      )}
-                    </div>
-                  </div>
+                        </div>
 
-                  {/* Save Button */}
-                  {isEditing && (
-                    <div className="pt-4 border-t border-white/20">
-                      <Button
-                        onClick={handleSaveProfile}
-                        disabled={isLoading}
-                        className="w-full bg-gradient-to-r from-primary/80 to-primary-600/80 hover:from-primary-600/90 hover:to-primary-700/90 text-white font-semibold rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl backdrop-blur-sm"
-                      >
-                        {isLoading ? (
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                            Saving...
+                        {/* Save Button */}
+                        {/* Save and Cancel Buttons */}
+                        <div className="pt-4 border-t border-white/20">
+                          <div className="flex gap-3">
+                            <Button
+                              onClick={handleSaveProfile}
+                              disabled={isLoading}
+                              className="btn-primary flex-1"
+                            >
+                              {isLoading ? (
+                                <div className="flex items-center gap-2">
+                                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                  Saving...
+                                </div>
+                              ) : (
+                                <>
+                                  <Save className="w-4 h-4 mr-2" />
+                                  {texts[language].saveChanges}
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              variant="outline"
+                              onClick={handleCancelEdit}
+                              disabled={isLoading}
+                              className="glass border-white/30 text-white hover:bg-white/20 hover:border-white/50 transition-all duration-300 flex-1"
+                            >
+                              <X className="w-4 h-4 mr-2" />
+                              {texts[language].cancel}
+                            </Button>
                           </div>
-                        ) : (
-                          <>
-                            <Save className="w-4 h-4 mr-2" />
-                            {texts[language].saveChanges}
-                          </>
-                        )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        {/* Display bio */}
+                        <div>
+                          <h4 className="text-white/90 font-semibold mb-2">
+                            Bio
+                          </h4>
+                          <p className="text-white/70 leading-relaxed">
+                            {firestoreUser?.bio || "No bio provided"}
+                          </p>
+                        </div>
+
+                        {/* Display social links */}
+                        {firestoreUser?.socialLinks &&
+                          Object.values(firestoreUser.socialLinks).some(
+                            (link) => link
+                          ) && (
+                            <div>
+                              <h4 className="text-white/90 font-semibold mb-3">
+                                {texts[language].socialLinks}
+                              </h4>
+                              <div className="flex flex-wrap gap-3">
+                                {Object.entries(firestoreUser.socialLinks).map(
+                                  ([platform, url]) =>
+                                    url && (
+                                      <a
+                                        key={platform}
+                                        href={url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="flex items-center gap-2 px-3 py-2 glass border-white/30 rounded-lg text-white/80 hover:text-white hover:bg-white/20 transition-all duration-300"
+                                      >
+                                        {getSocialIcon(platform)}
+                                        <span className="capitalize">
+                                          {platform}
+                                        </span>
+                                        <ExternalLink className="w-3 h-3" />
+                                      </a>
+                                    )
+                                )}
+                              </div>
+                            </div>
+                          )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+
+              {activeTab === "ideas" && (
+                <Card className="glass">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center gap-2">
+                      <BookOpen className="w-5 h-5" />
+                      {texts[language].myIdeas}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-center py-12">
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/20 rounded-full mb-4">
+                        <BookOpen className="w-8 h-8 text-primary" />
+                      </div>
+                      <h3 className="text-xl font-semibold text-white mb-2">
+                        {texts[language].noIdeas}
+                      </h3>
+                      <p className="text-white/60 mb-6">
+                        {texts[language].createFirstIdea}
+                      </p>
+                      <Button className="btn-primary">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Create Idea
                       </Button>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* Account Statistics */}
-              <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/20 shadow-2xl">
+              {/* Activity Card */}
+              <Card className="glass">
                 <CardHeader>
-                  <CardTitle className="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                  <CardTitle className="text-white flex items-center gap-2">
                     <Activity className="w-5 h-5" />
-                    {texts[language].stats.accountStatus}
+                    {texts[language].activity}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-3 bg-white/30 dark:bg-slate-700/30 rounded-lg backdrop-blur-sm">
-                      <div className="flex items-center gap-2">
-                        <Calendar className="w-4 h-4 text-primary" />
-                        <span className="text-slate-600 dark:text-slate-300 text-sm">
-                          {texts[language].stats.memberSince}
-                        </span>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div className="text-white/80 text-sm">
+                        {firestoreUser?.settings?.showLastSeen
+                          ? `Last seen ${getTimeSince(
+                              firestoreUser?.lastLoginAt
+                            )}`
+                          : "Activity hidden"}
                       </div>
-                      <span className="text-slate-800 dark:text-white font-medium text-xs">
-                        {getTimeSince(firestoreUser?.createdAt)}
-                      </span>
                     </div>
-
-                    <div className="flex items-center justify-between p-3 bg-white/30 dark:bg-slate-700/30 rounded-lg backdrop-blur-sm">
-                      <div className="flex items-center gap-2">
-                        <Award className="w-4 h-4 text-primary" />
-                        <span className="text-slate-600 dark:text-slate-300 text-sm">
-                          {texts[language].stats.totalIdeas}
-                        </span>
+                    <div className="flex items-center gap-3 p-3 bg-white/5 rounded-lg">
+                      <Calendar className="w-4 h-4 text-primary" />
+                      <div className="text-white/80 text-sm">
+                        Joined {formatDate(firestoreUser?.createdAt)}
                       </div>
-                      <span className="text-slate-800 dark:text-white font-medium">
-                        {firestoreUser?.ideasCount || 0}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between p-3 bg-white/30 dark:bg-slate-700/30 rounded-lg backdrop-blur-sm">
-                      <div className="flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-primary" />
-                        <span className="text-slate-600 dark:text-slate-300 text-sm">
-                          {texts[language].stats.lastActive}
-                        </span>
-                      </div>
-                      <span className="text-slate-800 dark:text-white font-medium text-xs">
-                        {getTimeSince(firestoreUser?.lastLoginAt)}
-                      </span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Linked Accounts */}
-              <Card className="bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl border border-white/20 shadow-2xl">
+              {/* Quick Actions */}
+              <Card className="glass">
                 <CardHeader>
-                  <CardTitle className="text-xl font-semibold text-slate-800 dark:text-white flex items-center gap-2">
-                    <LinkIcon className="w-5 h-5" />
-                    {texts[language].linkedAccounts}
+                  <CardTitle className="text-white flex items-center gap-2">
+                    <Zap className="w-5 h-5" />
+                    Quick Actions
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Current Providers */}
-                  <div className="space-y-3">
-                    <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      {texts[language].providers}
-                    </h4>
-                    <div className="space-y-2">
-                      {firestoreUser?.providers?.map((provider) => (
-                        <div
-                          key={provider}
-                          className="flex items-center justify-between p-3 bg-white/50 dark:bg-slate-700/50 rounded-lg backdrop-blur-sm border border-white/30"
-                        >
-                          <div className="flex items-center gap-3">
-                            {getProviderIcon(provider)}
-                            <span className="text-slate-800 dark:text-white font-medium">
-                              {getProviderName(provider)}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
-                              <Check className="w-3 h-3 mr-1" />
-                              {texts[language].linked}
-                            </Badge>
-                            {firestoreUser.providers &&
-                              firestoreUser.providers.length > 1 && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleUnlinkProvider(provider)}
-                                  disabled={isLoading}
-                                  className="bg-red-50/50 dark:bg-red-900/20 backdrop-blur-sm border-red-200/30 text-red-600 hover:bg-red-100/50 text-xs px-2 py-1"
-                                >
-                                  <X className="w-3 h-3" />
-                                </Button>
-                              )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Available Providers to Link */}
-                  {["google", "facebook", "github"].some((provider) =>
-                    canLinkProvider(provider)
-                  ) && (
-                    <div className="space-y-3">
-                      <h4 className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                        {texts[language].linkAccount}
-                      </h4>
-                      <div className="space-y-2">
-                        {["google", "facebook", "github"].map(
-                          (provider) =>
-                            canLinkProvider(provider) && (
-                              <Button
-                                key={provider}
-                                variant="outline"
-                                onClick={() => handleLinkProvider(provider)}
-                                disabled={isLoading}
-                                className="w-full justify-between bg-white/50 dark:bg-slate-700/50 backdrop-blur-sm border-white/30 hover:bg-white/70 dark:hover:bg-slate-600/50 transition-all duration-300"
-                              >
-                                <div className="flex items-center gap-2">
-                                  {getProviderIcon(provider)}
-                                  <span>{getProviderName(provider)}</span>
-                                </div>
-                                {isLoading ? (
-                                  <div className="w-4 h-4 border-2 border-gray-300 border-t-primary rounded-full animate-spin"></div>
-                                ) : (
-                                  <Plus className="w-4 h-4" />
-                                )}
-                              </Button>
-                            )
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Helpful Information */}
-                  <div className="mt-4 p-3 bg-blue-50/50 dark:bg-blue-900/20 rounded-lg border border-blue-200/30">
-                    <div className="flex items-start gap-2">
-                      <Shield className="w-4 h-4 text-blue-600 mt-0.5" />
-                      <div className="text-xs text-blue-700 dark:text-blue-300">
-                        <p className="font-medium mb-1">
-                          {language === "hu"
-                            ? "Biztonsági információ"
-                            : "Security Information"}
-                        </p>
-                        <p>
-                          {language === "hu"
-                            ? "Ha egy email cím már használatban van másik bejelentkezési módszerrel, a fiókokat nem lehet automatikusan összekapcsolni. Jelentkezz be előbb a meglévő módszerrel."
-                            : "If an email is already in use with a different sign-in method, accounts cannot be automatically linked. Please sign in with your existing method first."}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                <CardContent className="space-y-3">
+                  <Button
+                    variant="outline"
+                    className="w-full glass border-white/30 text-white hover:bg-white/20"
+                  >
+                    <Share2 className="w-4 h-4 mr-2" />
+                    {texts[language].share}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full glass border-white/30 text-white hover:bg-white/20"
+                  >
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    {texts[language].viewAllIdeas}
+                  </Button>
                 </CardContent>
               </Card>
             </div>
           </div>
         </div>
       </main>
-      <Footer />
     </div>
   );
 }
